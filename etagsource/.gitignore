@@ -1,0 +1,30 @@
+WebRoot/WEB-INF/classes/
+bin/
+target/
+.cproject
+/.cproject
+*.cproject
+/*.cproject
+/.settings/
+.settings/
+
+#先备份.cproject-win64 or .cproject-linux64,然后git rm -f .cproject,最后git add--commit. 再次复原回来.cproject就变灰了。
+
+
+#以.gitignore所在为根。带不带/都有效。
+#若某文件或者文件夹已经被add过，则.gitignore无效。
+#需要先在本地仓库里删除掉跟踪历史：
+# 文件  git rm --cached pom.xml  
+# 目录  git rm -r --cached bin   
+# 目录  git rm -r --cached target
+# 目录  git rm -r --cached WebRoot/WEB-INF/classes
+#然后要执行 git commit -m "udddd"  则保存到了本地库才生效。
+
+#如果想要强制提交已经忽略的文件：git add pom.xml -f然后commit,push。
+#记住，如果强制提交之后，又要执行上述的<<在本地仓库里删除掉跟踪历史>>.
+
+#如果忽略的文件又在origin仓库出现了，则需要git add file/dir之后才可以git pull下来，否则一直出现分叉错误.
+#此时容易出现错误。若出现You have not concluded your merge (MERGE_HEAD exists).需要执行git commit -m "d"即可。
+#最后可以git checkout file/dir接受。
+
+/Debug/

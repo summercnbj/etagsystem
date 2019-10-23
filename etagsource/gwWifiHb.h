@@ -12,7 +12,7 @@
 #include "itrackerCharArray.h"
 #include "cTools.h"
 #include "commands.h"
-
+#include "nvramApi.h"
 
 //macBytes with length of MAC_BYTE_LENGTH=6
 extern uint8* formUuidBytes(uint8* macBytes);

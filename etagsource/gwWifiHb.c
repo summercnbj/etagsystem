@@ -58,29 +58,29 @@ uint8* getGwHbCore(uint8* uuidBytes,uint8 battPercentage,uint8* rootMacBytes,
 	*gwHbCore_length = header_len + productModel_length+softwareVersion_length+hardwareVersion_length +3;
 	printf("*gwHbCore_length= %d\n", *gwHbCore_length );
 	//3 is for ending 0 of productModel,softwareVersion,hardwareVersion
-	uint8* ret = (uint8*)myMalloc(*gwHbCore_length,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+	uint8* core = (uint8*)myMalloc(*gwHbCore_length,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
 
 //	return NULL;
-	if(ret == NULL)
+	if(core == NULL)
 		return NULL;
 
-	ret[0] = CMD_GW_HB;
-	copyCharArrayIntoBuffer(uuidBytes, UUID_BYTE_LENGTH, ret + CMD_LENGTH);
-	ret[CMD_LENGTH + UUID_BYTE_LENGTH] = battPercentage;
-	copyCharArrayIntoBuffer(uuidBytes, MAC_BYTE_LENGTH, ret + CMD_LENGTH + UUID_BYTE_LENGTH + BATTPERCENTAGE_LENGTH);
+	core[0] = CMD_GW_HB;
+	copyCharArrayIntoBuffer(uuidBytes, UUID_BYTE_LENGTH, core + CMD_LENGTH);
+	core[CMD_LENGTH + UUID_BYTE_LENGTH] = battPercentage;
+	copyCharArrayIntoBuffer(uuidBytes, MAC_BYTE_LENGTH, core + CMD_LENGTH + UUID_BYTE_LENGTH + BATTPERCENTAGE_LENGTH);
 
-	ret[CMD_LENGTH + UUID_BYTE_LENGTH + BATTPERCENTAGE_LENGTH + MAC_BYTE_LENGTH] =isBusy;
+	core[CMD_LENGTH + UUID_BYTE_LENGTH + BATTPERCENTAGE_LENGTH + MAC_BYTE_LENGTH] =isBusy;
 
-	copyCharArrayIntoBuffer(productModel,productModel_length,ret + header_len);
-	ret[header_len + productModel_length] =0;//ending 0
+	copyCharArrayIntoBuffer(productModel,productModel_length,core + header_len);
+	core[header_len + productModel_length] =0;//ending 0
 
-	copyCharArrayIntoBuffer(softwareVersion,softwareVersion_length,ret + header_len +productModel_length +1);
-	ret[header_len + productModel_length +1 + softwareVersion_length] =0;//1 is for ending 0
+	copyCharArrayIntoBuffer(softwareVersion,softwareVersion_length,core + header_len +productModel_length +1);
+	core[header_len + productModel_length +1 + softwareVersion_length] =0;//1 is for ending 0
 
-	copyCharArrayIntoBuffer(hardwareVersion,hardwareVersion_length,ret + header_len +productModel_length +1 +softwareVersion_length +1 );
-	ret[header_len + productModel_length +1 + softwareVersion_length + 1+ hardwareVersion_length] =0;//1 is for ending 0
+	copyCharArrayIntoBuffer(hardwareVersion,hardwareVersion_length,core + header_len +productModel_length +1 +softwareVersion_length +1 );
+	core[header_len + productModel_length +1 + softwareVersion_length + 1+ hardwareVersion_length] =0;//1 is for ending 0
 
-	return ret;
+	return core;
 }
 
 /**
@@ -122,7 +122,12 @@ uint8* formGwHbPackage(uint8* shortPW,  uint16 flowNo, uint8* macBytes, uint8* g
 	return package;
 }
 
+void TIMER_TIMEOUT_SET_GW_OFFLINE()
+{
 
+	//TODO cloud LED 灭 。  表示访问云服务器失败
+
+}
 
 /**
  * @shortPW 密码
@@ -177,12 +182,7 @@ uint8* getGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* macBytes,uint8 battP
 	return package;//用完后需要myFree
 }
 
-void TIMER_TIMEOUT_SET_GW_OFFLINE()
-{
 
-	//TODO cloud LED 灭 。  表示访问云服务器失败
-
-}
 
 
 

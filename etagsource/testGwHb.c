@@ -36,25 +36,29 @@ void testGwHb_andParse()
 
 
 
-	uint8* hb = parseHb( shortPW,  package, package_length);
+	ParseHbResult* hb = parseHb( shortPW,  package, package_length);
 	myFree(package);
 	if(hb == NULL)
 	{//parse lose
 		return;
 	}
 
-	if(*hb == HB_TYPE_from_GW)
+	if(HB_TYPE_from_GW == hb->type)
 	{
-		struct gwHbPackage_struct* gwHbPackage = (struct gwHbPackage_struct*)hb;
-
-		printGwHbPackage_struct(gwHbPackage);
+		if( hb->length >= sizeof(GwHbPackage))
+		{
+			GwHbPackage* gwHbPackage = hb->package;
+			printGwHbPackage(gwHbPackage);
+		}
 	}
-	else if(*hb == HB_TYPE_from_ETAG)
+	else if(HB_TYPE_from_ETAG == hb->type)
 	{
-
-
+		if( hb->length >= sizeof(EtagHbPackage))
+		{
+			EtagHbPackage* etagHbPackage = hb->package;
+//			printGwHbPackage_struct(gwHbPackage);
+		}
 	}
-
 
 }
 
@@ -90,11 +94,14 @@ void testGwHbFeedbackNewShortPW_andParse()
 	myFree(package);
 }
 
+
+#if 0
 int main()
 {
 
-//	testGwHb_andParse();
-	testGwHbFeedbackState_andParse();
+	testGwHb_andParse();
+//	testGwHbFeedbackState_andParse();
 
-	testGwHbFeedbackNewShortPW_andParse();
+//	testGwHbFeedbackNewShortPW_andParse();
 }
+#endif

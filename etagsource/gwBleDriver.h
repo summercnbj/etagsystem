@@ -18,6 +18,6 @@
 extern void sendUart(uint8* data,uint16 data_length);
 
 //TODO 被驱动调用：从uart协议里解出的data
-extern void parseUart(uint8* data,uint16 data_length);
+extern void wifiParseUart(uint8* data,uint16 data_length);
 
 #endif /* GWBLEDRIVER_H_ */

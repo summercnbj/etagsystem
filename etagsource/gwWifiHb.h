@@ -17,7 +17,7 @@
 //macBytes with length of MAC_BYTE_LENGTH=6
 extern uint8* formUuidBytes(uint8* macBytes);
 
-/**
+/** 获得已经加密组装了流水号的GW心跳包，准备发送到云服务器
  * @shortPW 密码
  * @flowNo 云请求的流水号
  * @macBytes 长度为MAC_BYTE_LENGTH=6
@@ -32,8 +32,7 @@ extern uint8* formUuidBytes(uint8* macBytes);
  * 心跳包总长度为package_length。
  *
  */
-extern uint8* getGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* macBytes,uint8 battPercentage,uint8* rootMacBytes,
-		itr_bool isBusy,uint8* productModel,uint8*softwareVersion,uint8*hardwareVersion,uint16 *package_length);
+
 
 
 

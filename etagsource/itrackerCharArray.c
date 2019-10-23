@@ -1194,6 +1194,24 @@ void copyCharArrayIntoBuffer(const unsigned char * source,  uint16 length, unsig
 
 }
 
+void copyCharArrayIntoBufferWithLimit(const unsigned char * source,  uint16 length, unsigned char * target, uint16 length_limit)
+{
+	if(length > length_limit)
+	{
+		length = length_limit;
+	}
+	copyCharArrayIntoBuffer( source,  length,  target);
+}
+
+void copyStringIntoBufferWithLimit(const unsigned char * string, unsigned char * target, uint16 length_limit)
+{
+	uint16 length = strlen(string)+1;//1 if for ending 0
+	if(length > length_limit)
+	{
+		length = length_limit;
+	}
+	copyCharArrayIntoBuffer( string,  length,  target);
+}
 
 itr_bool caIsNull(CA* oneca)
 {

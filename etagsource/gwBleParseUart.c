@@ -46,7 +46,7 @@ void onBoot_check_NEW_SHORTPW(uint8* shortPW)
 }
 
 
-void parseUartPackage(uint8* package,uint16 package_length)
+void bleParseUartPackage(uint8* package,uint16 package_length)
 {
 	myPrintf("parseUartPackage package_length= %d\n",package_length);
 	if(NULL == package || package_length < CMD_LENGTH)

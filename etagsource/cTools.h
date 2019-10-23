@@ -24,6 +24,8 @@ extern int stringlen(uint8* string);
 #define VERSION_BYTE_LENGTH 2
 //分成2bytes。   "87a.a66"-->87,0; "  87.6a6"-->87,6;  " 287.6 9"-->31,6;  因为287超过了256
 extern int8 versionBytes(uint8* version, uint8* buffer, uint8 bufferlen);
+extern void versionBytes2String(uint8* twoBytes, uint8* buf, uint16 buf_length);
+
 
 //在原数据的基础上重新排列。在使用前请复制原来的数据
 extern void doOffsetByShortPW(uint8* shortPW, uint8* data, uint16 data_length);

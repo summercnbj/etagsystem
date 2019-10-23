@@ -30,7 +30,7 @@ void testEtagHbAdv_andParse()
 
 }
 
-
+#if 1
 int main()
 {
 
@@ -38,3 +38,4 @@ int main()
 
 
 }
+#endif

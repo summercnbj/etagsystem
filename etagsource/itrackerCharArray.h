@@ -163,6 +163,8 @@ extern CA* trimCharArray(const uint8* chararray, uint16 length);
 extern CA* trimCharArrayFree(uint8* chararray, uint16 length);
 extern unsigned char *copyCharArray(const unsigned char * source, uint16 length);
 extern void copyCharArrayIntoBuffer(const unsigned char * source,  uint16 length, unsigned char * target);
+extern void copyCharArrayIntoBufferWithLimit(const unsigned char * source,  uint16 length, unsigned char * target, uint16 length_limit);
+extern void copyStringIntoBufferWithLimit(const unsigned char * string, unsigned char * target, uint16 length_limit);
 
 
 extern CA* replacePartOfCA(CA* ca, uint16 offset, uint16 old_length, uint8* new_part, uint16 new_part_length );

@@ -6,7 +6,7 @@
  */
 #include "itracker88Platform.h"
 #include "cTools.h"
-
+#include "commands.h"
 
 
 int stringlen(uint8* string)
@@ -18,6 +18,7 @@ int stringlen(uint8* string)
 	}
 	return string_length;
 }
+
 
 //分成2bytes。   "87a.a66"-->87,0; "  87.6a6"-->87,6;  " 287.6 9"-->31,6;  因为287超过了256
 int8 versionBytes(uint8* version, uint8* buffer, uint8 bufferlen)
@@ -42,6 +43,32 @@ int8 versionBytes(uint8* version, uint8* buffer, uint8 bufferlen)
 	return 0;//success
 }
 
+void oneByte2String(uint8 oneByte, uint8* buf, uint16 buf_length)
+{
+	if(buf == NULL || buf_length < 3)
+	{
+		return;
+	}
+	itoa(oneByte,buf,10);//转化成十进制字符串
+}
+
+void versionBytes2String(uint8* twoBytes, uint8* buf, uint16 buf_length)
+{
+	if(buf_length < SOFTWAREVERSION_LENGTH_MAX)
+		return ;
+	uint8 b[4];
+	memset(b,0,4);
+	oneByte2String(*twoBytes, b, 4);
+	copyCharArrayIntoBuffer(b,strlen(b),buf);
+
+	strcat(buf,".");
+
+	memset(b,0,4);
+	oneByte2String(*(twoBytes+1), b, 4);
+	strcat(buf,b);
+}
+
+
 //在原数据的基础上重新排列，长度不变。在使用前请复制原来的数据
 void doOffsetByShortPW(uint8* shortPW, uint8* data, uint16 data_length)
 {
@@ -62,13 +89,18 @@ void restoreOffsetByShortPW(uint8* shortPW, uint8* offsetData, uint16 offsetData
 #if 0
 int main()
 {
-	uint8* version = " 287.6 9";
+	uint8* version = " 267.6 9";
 	uint8 buffer[3];
 	uint8 bufferlen =2;
 	int8 ver = versionBytes( version,  buffer,  bufferlen);
 
 	printCharArray("buffer ",buffer,2);
 
+
+	uint8 buf[8];
+	versionBytes2String( buffer, buf, 8);
+
+	myPrintf("buf= %s\n", buf);
 }
 
 #endif

@@ -9,19 +9,9 @@
 
 #include "itrackerBlowFish.h"
 
-//macBytes with length of MAC_BYTE_LENGTH=6
-uint8* formUuidBytes(uint8* macBytes)
-{
-	if(macBytes == NULL)
-		return NULL;
-	uint8* uuid = (uint8*)myMalloc(UUID_BYTE_LENGTH,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
-	if(uuid == NULL)
-		return NULL;
-	copyCharArrayIntoBuffer(macBytes,MAC_BYTE_LENGTH,uuid);
-	return uuid;
-}
 
-/**
+
+/** 获得已经加密组装了流水号的GW心跳包，准备发送到云服务器
  * @uuid 长度为UUID_BYTE_LENGTH=42
  * @battPercentage  电量百分比
  * @rootMacBytes 长度为MAC_BYTE_LENGTH
@@ -36,8 +26,8 @@ uint8* formUuidBytes(uint8* macBytes)
  * int header_len = CMD_LENGTH + UUID_BYTE_LENGTH + BATTPERCENTAGE_LENGTH + MAC_BYTE_LENGTH + BUSY_LENGTH =51;
  *
  */
-uint8* getGwHbCore(uint8* uuidBytes,uint8 battPercentage,uint8* rootMacBytes,
-		itr_bool isBusy,uint8* productModel,uint8*softwareVersion,uint8*hardwareVersion,uint16 *gwHbCore_length)
+uint8* getGwHbCore(uint8* uuidBytes,uint8 gwBattPercentage,uint8* rootMacBytes,
+		itr_bool isBusy,uint8* gwProductModel,uint8*gwSoftwareVersion,uint8*gwHardwareVersion,uint16 *gwHbCore_length)
 {
 	printf("length= %d\n", 0 );
 	if(uuidBytes ==NULL || rootMacBytes==NULL)
@@ -51,9 +41,9 @@ uint8* getGwHbCore(uint8* uuidBytes,uint8 battPercentage,uint8* rootMacBytes,
 
 	int header_len = GW_HBCORE_HEADER_LENGTH;
 
-	int productModel_length = stringlen(productModel) ;
-	int softwareVersion_length = stringlen(softwareVersion) ;
-	int hardwareVersion_length = stringlen(hardwareVersion) ;
+	int productModel_length = stringlen(gwProductModel) ;
+	int softwareVersion_length = stringlen(gwSoftwareVersion) ;
+	int hardwareVersion_length = stringlen(gwHardwareVersion) ;
 
 	*gwHbCore_length = header_len + productModel_length+softwareVersion_length+hardwareVersion_length +3;
 	printf("*gwHbCore_length= %d\n", *gwHbCore_length );
@@ -66,61 +56,24 @@ uint8* getGwHbCore(uint8* uuidBytes,uint8 battPercentage,uint8* rootMacBytes,
 
 	core[0] = CMD_GW_HB;
 	copyCharArrayIntoBuffer(uuidBytes, UUID_BYTE_LENGTH, core + CMD_LENGTH);
-	core[CMD_LENGTH + UUID_BYTE_LENGTH] = battPercentage;
+	core[CMD_LENGTH + UUID_BYTE_LENGTH] = gwBattPercentage;
 	copyCharArrayIntoBuffer(uuidBytes, MAC_BYTE_LENGTH, core + CMD_LENGTH + UUID_BYTE_LENGTH + BATTPERCENTAGE_LENGTH);
 
 	core[CMD_LENGTH + UUID_BYTE_LENGTH + BATTPERCENTAGE_LENGTH + MAC_BYTE_LENGTH] =isBusy;
 
-	copyCharArrayIntoBuffer(productModel,productModel_length,core + header_len);
+	copyCharArrayIntoBuffer(gwProductModel,productModel_length,core + header_len);
 	core[header_len + productModel_length] =0;//ending 0
 
-	copyCharArrayIntoBuffer(softwareVersion,softwareVersion_length,core + header_len +productModel_length +1);
+	copyCharArrayIntoBuffer(gwSoftwareVersion,softwareVersion_length,core + header_len +productModel_length +1);
 	core[header_len + productModel_length +1 + softwareVersion_length] =0;//1 is for ending 0
 
-	copyCharArrayIntoBuffer(hardwareVersion,hardwareVersion_length,core + header_len +productModel_length +1 +softwareVersion_length +1 );
+	copyCharArrayIntoBuffer(gwHardwareVersion,hardwareVersion_length,core + header_len +productModel_length +1 +softwareVersion_length +1 );
 	core[header_len + productModel_length +1 + softwareVersion_length + 1+ hardwareVersion_length] =0;//1 is for ending 0
 
 	return core;
 }
 
-/**
- * 给心跳包gwHbCore做blowfish加密
- * @shortPW 密码
- * @gwHbCore 心跳包
- * @gwHbCore_length 心跳包长度
- * @encryptedSize 密文长度存入该地址
- * @return 密文
- */
-uint8* getGwHbCoreEncrypt(uint8* shortPW, uint8* gwHbCore ,uint16 gwHbCore_length, uint16 *encryptedSize)
-{
-	if(gwHbCore == NULL || gwHbCore_length == 0)
-	{
-		return NULL;
-	}
 
-	uint8* encode = blowfishEnc(shortPW, gwHbCore,gwHbCore_length, encryptedSize);
-	myPrintf("encryptedSize= %d\n", *encryptedSize);
-
-	return encode;
-}
-
-uint8* formGwHbPackage(uint8* shortPW,  uint16 flowNo, uint8* macBytes, uint8* gwHbCoreEncrypt ,uint16 gwHbCoreEncrypt_length, uint16 *package_length)
-{
-	if(gwHbCoreEncrypt_length ==0)
-		return NULL;
-	*package_length = FLOWNO_BYTE_LENGTH + MAC_BYTE_LENGTH + gwHbCoreEncrypt_length;
-	uint8* package = (uint8*)myMalloc(*package_length,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
-	if(package == NULL)
-	{
-		return NULL;
-	}
-
-	uint16_into_big_endian_bytes( flowNo,  package,  package_length);
-	copyCharArrayIntoBuffer( macBytes, MAC_BYTE_LENGTH, package + FLOWNO_BYTE_LENGTH );
-	copyCharArrayIntoBuffer( gwHbCoreEncrypt, gwHbCoreEncrypt_length, package + FLOWNO_BYTE_LENGTH + MAC_BYTE_LENGTH );
-
-	return package;
-}
 
 void TIMER_TIMEOUT_SET_GW_OFFLINE()
 {
@@ -129,6 +82,8 @@ void TIMER_TIMEOUT_SET_GW_OFFLINE()
 
 }
 
+
+#include "gwWifiEncDec.h"
 /**
  * @shortPW 密码
  * @flowNo 云请求的流水号
@@ -144,14 +99,14 @@ void TIMER_TIMEOUT_SET_GW_OFFLINE()
  * 心跳包总长度为package_length。
  *
  */
-uint8* getGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* macBytes,uint8 battPercentage,uint8* rootMacBytes,
-		itr_bool isBusy,uint8* productModel,uint8*softwareVersion,uint8*hardwareVersion,uint16 *package_length)
+uint8* formGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* wifiMacBytes,uint8 gwBattPercentage,uint8* rootMacBytes,
+		itr_bool isBusy,uint8* gwProductModel,uint8*gwSoftwareVersion,uint8*gwHardwareVersion,uint16 *package_length)
 {
-	uint8* uuidBytes = formUuidBytes( macBytes);
+	uint8* uuidBytes = formUuidBytes( wifiMacBytes);
 
 	uint16 gwHbCore_length =0;
-	uint8* gwHbCore = getGwHbCore( uuidBytes, battPercentage, rootMacBytes,
-			 isBusy, productModel,softwareVersion,hardwareVersion,&gwHbCore_length);
+	uint8* gwHbCore = getGwHbCore( uuidBytes, gwBattPercentage, rootMacBytes,
+			 isBusy, gwProductModel,gwSoftwareVersion,gwHardwareVersion,&gwHbCore_length);
 
 	myFree(uuidBytes);
 	if( gwHbCore_length < GW_HBCORE_HEADER_LENGTH)
@@ -161,10 +116,10 @@ uint8* getGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* macBytes,uint8 battP
 	}
 
 	uint16 gwHbCoreEncrypt_length =0;
-	uint8* gwHbCoreEncrypt = getGwHbCoreEncrypt( shortPW,  gwHbCore , gwHbCore_length,&gwHbCoreEncrypt_length);
+	uint8* gwHbCoreEncrypt = getHbCoreEncrypt( shortPW,  gwHbCore , gwHbCore_length,&gwHbCoreEncrypt_length);
 	myFree(gwHbCore);
 
-	uint8* package = formGwHbPackage( shortPW,  flowNo,  macBytes,  gwHbCoreEncrypt , gwHbCoreEncrypt_length, package_length);
+	uint8* package = formHbPackage( shortPW,  flowNo,  wifiMacBytes,  gwHbCoreEncrypt , gwHbCoreEncrypt_length, package_length);
 	myFree(gwHbCoreEncrypt);
 
 
@@ -182,8 +137,12 @@ uint8* getGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* macBytes,uint8 battP
 	return package;//用完后需要myFree
 }
 
-
-
+uint8* getGwHbPackage(uint16 *package_length)
+{
+	addFlowNo();
+	return formGwHbPackage(getShortPW(), getFlowNo(), getWifiMacBytes(),getGwBattPercentage(),getRootMacBytes(),
+			0, getGwProductModel(), getGwSoftwareVersion(), getGwHardwareVersion(), package_length);
+}
 
 
 /*~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
@@ -234,8 +193,10 @@ void testGwHb()
 	uint8* gwHbCore = ret;
 
 	uint16 encryptedSize =0;
-	uint8* encode = getGwHbCoreEncrypt( shortPW, gwHbCore, gwHbCore_length, &encryptedSize);
+	uint8* encode = getHbCoreEncrypt( shortPW, gwHbCore, gwHbCore_length, &encryptedSize);
 	printf("encryptedSize= %d\n", encryptedSize);
+
+	myFree(gwHbCore);
 
 	uint16 decryptSize =0;
 	uchar* decode = blowfishDec(shortPW, encode, encryptedSize, &decryptSize);

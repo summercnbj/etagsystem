@@ -11,15 +11,18 @@
 void testGwHb_andParse()
 {
 	uint8* shortPW = "123456";
-	uint16 flowNo = 22855;
-
+	copyCharArrayIntoBuffer(shortPW,SHORTPW_LENGTH,getShortPW());
 	uint8 macBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};
+	copyCharArrayIntoBuffer(macBytes,MAC_BYTE_LENGTH,getWifiMacBytes());
+
 	uint8* uuidBytes = formUuidBytes( macBytes);
 //	uint8 uuidBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33
 //			,0,0,0,0,0,0  ,0,0,0,0,0,0 ,0,0,0,0,0,0 ,0,0,0,0,0,0 ,0,0,0,0,0,0 ,0,0,0,0,0,0 };
 //	printf("=%d\n",uuidBytes[2]);
 	uint8 battPercentage = 39;
+	setGwBattPercentage(battPercentage);
 	uint8 rootMacBytes[MAC_BYTE_LENGTH] = {0x12,0x34,0x56,0x78,0x9a,0xbc};
+	copyCharArrayIntoBuffer(rootMacBytes,MAC_BYTE_LENGTH,getRootMacBytes());
 	itr_bool isBusy =0;
 //	uint8* productModel = "et-1099";
 //	uint8*softwareVersion = "66.77";
@@ -28,9 +31,12 @@ void testGwHb_andParse()
 	uint8*softwareVersion = NULL;
 //	uint8*hardwareVersion = NULL;
 
+	copyStringIntoBufferWithLimit(productModel,getGwProductModel(),PRODUCTMODEL_LENGTH_MAX+1);
+	copyStringIntoBufferWithLimit(softwareVersion,getGwSoftwareVersion(),SOFTWAREVERSION_LENGTH_MAX+1);
+	copyStringIntoBufferWithLimit(hardwareVersion,getGwHardwareVersion(),HARDWAREVERSION_LENGTH_MAX+1);
+
 	uint16 package_length =0;
-	uint8* package = getGwHbPackage(shortPW, flowNo, macBytes,battPercentage,rootMacBytes,
-			 isBusy, productModel,softwareVersion,hardwareVersion, &package_length);
+	uint8* package = getGwHbPackage( &package_length);
 
 	myPrintf("package_length = %d\n", package_length);
 

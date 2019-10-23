@@ -19,7 +19,7 @@ uint8* getOffsetDataCore(uint8* productModel, uint8*softwareVersion,uint8* hardw
 
 	*dataCore = CMD_TAG_HB;
 
-	int len = stringlen(productModel) +1;//1 is for ending
+	int len = stringlen(productModel) +1;//1 is for ending 0
 	if(len > PRODUCTMODEL_LENGTH_MAX)
 	{
 		len = PRODUCTMODEL_LENGTH_MAX;

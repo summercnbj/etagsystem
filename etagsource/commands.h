@@ -8,6 +8,9 @@
 #ifndef COMMANDS_H_
 #define COMMANDS_H_
 
+#define TESTING_SUMMER  1//测试
+
+
 
 #define CMD_LENGTH 1
 #define SUBCMD_LENGTH 1
@@ -41,8 +44,11 @@
 //~~~~~~~~~~~CMD_TAG_HB~~~~~~~~~~~~~~~~
 #define CMD_TAG_HB  0x91
 #define TAG_HB_LENGTH 21
-#define PRODUCTMODEL_LENGTH_MAX 7
-
+#define PRODUCTMODEL_LENGTH_MAX 7 //ET-1101
+#define SOFTWAREVERSION_BYTE_LENGTH 2
+#define HARDWAREVERSION_BYTE_LENGTH 2
+#define SOFTWAREVERSION_LENGTH_MAX 7 //111.111
+#define HARDWAREVERSION_LENGTH_MAX 7 //111.111
 
 //~~~~~~~~~~~CMD_TAG_GW_HB~~~~~~~~~~~~~~~~
 #define CMD_TAG_GW_HB 0x91
@@ -60,6 +66,8 @@
 
 
 #define TAG_HB_ONUART_LENGTH 27
+
+#define ETAG_GW_HB_LENGTH 76
 
 
 //~~~~~~~~~~~CMD_TAG_GW_HB_FEEDBACK ONUART~~~~~~~~~~~~~~~~

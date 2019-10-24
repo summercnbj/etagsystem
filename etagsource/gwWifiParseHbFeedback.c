@@ -5,7 +5,7 @@
  *      Author: summer
  */
 #include "gwWifiParseHbFeedback.h"
-
+#include "gwWifiDriver.h"
 
 //~~~~~~~~~~~~~~~~~~~~见十~~~~~~~~~~~~~~~~~~~
 
@@ -23,12 +23,17 @@ void receiveNewShortPWResponse()
 	}
 }
 
-
-void to_send_NEW_SHORTPW_ONUART(uint8* shortPW)
+#include "gwWifi2Uart.h"
+void to_send_NEW_SHORTPW_ONUART(uint8* newShortPW)
 {
-	printCharArray("todoNewShortPW:", shortPW, SHORTPW_LENGTH);
+	printCharArray("todoNewShortPW:", newShortPW, SHORTPW_LENGTH);
 	newShortPWResponse =0;//reset
 	//TODO  向网关里的所有蓝牙发送GW_NEW_SHORTPW_ONUART并确保都收到了: 发向缓存sendingCache2Uart
+
+	uint8* pack = get_GW_NEW_SHORTPW_ONUART(newShortPW);
+	wifiSendUart(pack, GW_NEW_SHORTPW_ONUART_LENGTH);
+
+	myFree(pack);
 
 	//必须等收到了所有的应答后才能删除NVRAM ID UPDATING_SHORTPW_TO_BLE
 }
@@ -65,8 +70,71 @@ void todoNewShortPW(uint8* newShortPW)
 }
 
 
-#include "gwWifiDriver.h"
 
+
+void disposeGwState(uint8 gwState)
+{
+	switch(gwState)
+	{
+	case GW_State_Illegal:// =0xff:
+	{
+		//TODO  mac 地址非法: ssid/cloud/shop 3 alert RED LEDs 同时慢闪
+	}
+	break;
+	case GW_State_Initial_NotLocated:// =0x01
+	{
+		//自动删除网关配置GW_CONFIG (SSID/PWD, CLOUD_INFO,shortPW 用户短密码)。删完后ssid/cloud/shop 3 alert RED LEDs全常亮。
+		wifiResetFactory();
+	}
+	break;
+	case GW_State_Online_Located:// =0x04
+	{
+		//TODO 心跳包正常在线且已绑定门店。 ssid/cloud/shop 3个alert RED LEDs都灭
+	}
+	break;
+	case GW_State_Online_Error_Located://=0xfd
+	{
+		//TODO 如果某一个routerMac 下有网关捆绑了多个店，则这些网关的shop RED led 都快闪，	提示要检查其中某些网关捆绑错了门店.  ssid/cloud 2个alert RED LEDs都灭
+	}
+	break;
+	default:
+		break;
+	}
+
+}
+
+void disposeEtagState(uint8 etagState,uint8* decoded_hbfeedback, uint16 decryptSize)
+{
+	uint8* etagGwHbFeedbackOnUart_header = decoded_hbfeedback;
+	uint16 header_length = CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH + STATE_LENGTH;
+	uint8* md5_16_bytes = decoded_hbfeedback + CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH + STATE_LENGTH;
+	uint16 md5_16_bytes_length = decryptSize - (CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH +STATE_LENGTH);
+
+	if( Etag_State_Online_ProductBound == etagState)
+	{
+//			先所有都不发向UART。// 也许改为：	每TAG_RETURN_RATIO个才转发一个到uart。
+	}
+	else
+	{
+		// 全部转发
+		if(md5_16_bytes_length != 0)
+		{//分包处理
+
+			//参见  电子价签云服务器接口规范二 价签点阵数据定义V1.1
+
+
+//			wifiSendUart
+		}
+		else
+		{
+			wifiSendUart(etagGwHbFeedbackOnUart_header,header_length);
+		}
+	}
+
+}
+
+#include "gwWifiDriver.h"
+//API: 被wifi接收函数调用
 void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedbackPackage_length, uint8* myMacBytes)
 {
 	if(shortPW == NULL || hbFeedbackPackage ==NULL || myMacBytes == NULL)
@@ -78,8 +146,17 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 		return ;//太短
 	}
 
+	uint16 receiveFlowNo = getUint16_big_endian(hbFeedbackPackage);
+
+	itr_bool valid = flowNoValid(receiveFlowNo);
+	if(!valid)
+	{
+		//该包已过期timeout
+		return;
+	}
+
 	uint16 decryptSize =0;
-	uchar* decode = blowfishDec(shortPW, hbFeedbackPackage + FLOWNO_BYTE_LENGTH  ,
+	uchar* decode = blowfishDec(shortPW, hbFeedbackPackage + FLOWNO_BYTE_LENGTH ,
 			hbFeedbackPackage_length -(FLOWNO_BYTE_LENGTH ) , &decryptSize);
 
 	//GW_HB_FEEDBACK_LENGTH=9 or ETAG_GW_HB_FEEDBACK_LENGTH(9+N) or GW_NEW_SHOWRTPW_LENGTH=14
@@ -98,43 +175,16 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 
 	uint8 subcmd = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH );
 
-	myPrintf("cmd =0x%x, subcmd= 0x%x\n",*decode,subcmd);
+	myPrintf("parseHbFeedback cmd =0x%x, subcmd= 0x%x\n",*decode,subcmd);
 	if(CMD_GW_HB_FEEDBACK == *decode)
 	{
 		//TODO cancel TIMER_TIMEOUT_SET_GW_OFFLINE  (in gwWifiHb.c)
 
-
-
 		if( SUBCMD_GW_STATE == subcmd )
 		{
 			uint8 gwState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH);
-			myPrintf("gwState =0x%x\n",gwState);
-			switch(gwState)
-			{
-			case GW_State_Illegal:// =0xff:
-			{
-				//TODO  mac 地址非法: ssid/cloud/shop 3 alert RED LEDs 同时慢闪
-			}
-			break;
-			case GW_State_Initial_NotLocated:// =0x01
-			{
-				//自动删除网关配置GW_CONFIG (SSID/PWD, CLOUD_INFO,shortPW 用户短密码)。删完后ssid/cloud/shop 3 alert RED LEDs全常亮。
-				resetFactory();
-			}
-			break;
-			case GW_State_Online_Located:// =0x04
-			{
-				//TODO 心跳包正常在线且已绑定门店。 ssid/cloud/shop 3个alert RED LEDs都灭
-			}
-			break;
-			case GW_State_Online_Error_Located://=0xfd
-			{
-				//TODO 如果某一个routerMac 下有网关捆绑了多个店，则这些网关的shop RED led 都快闪，	提示要检查其中某些网关捆绑错了门店.  ssid/cloud 2个alert RED LEDs都灭
-			}
-			break;
-			default:
-				break;
-			}
+			myPrintf("parseHbFeedback gwState =0x%x\n",gwState);
+			disposeGwState(gwState);
 		}
 		else if( SUBCMD_GW_NEW_SHORTPW == subcmd )
 		{
@@ -146,9 +196,13 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 	}
 	else if(CMD_TAG_GW_HB_FEEDBACK == *decode)
 	{
+		if( SUBCMD_TAG_STATE == subcmd )
+		{
+			uint8 etagState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH);
+			myPrintf("parseHbFeedback etagState =0x%x\n",etagState);
 
-
-
+			disposeEtagState(etagState, decode,decryptSize );
+		}
 	}
 
 }

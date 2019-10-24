@@ -126,7 +126,6 @@ extern uint8* parseFormatHexMacIntoCharArraySix( uint8* mac, uint8 length );
 extern void MacSixIntoMac12HexChar( uint8 *pAddr ,uint8 length6byte, uint8* str, uint8 length13bytes );
 extern uint8* parseCharArraySixIntoMac12HexChar( uint8* mac , uint8 length );//into 12 char + 1 for \0
 
-extern void uint16_into_big_endian_bytes(uint16 number, uint8* buffer, uint16 buffer_len);
 
 extern void bdAddr2Str( uint8 *pAddr ,uint8 length6byte, char* str, uint8 length13bytes );
 
@@ -161,10 +160,10 @@ extern CA* trimCAFree(CA* oneca);
 extern CA* trimCA(CA* ca);
 extern CA* trimCharArray(const uint8* chararray, uint16 length);
 extern CA* trimCharArrayFree(uint8* chararray, uint16 length);
-extern unsigned char *copyCharArray(const unsigned char * source, uint16 length);
-extern void copyCharArrayIntoBuffer(const unsigned char * source,  uint16 length, unsigned char * target);
-extern void copyCharArrayIntoBufferWithLimit(const unsigned char * source,  uint16 length, unsigned char * target, uint16 length_limit);
-extern void copyStringIntoBufferWithLimit(const unsigned char * string, unsigned char * target, uint16 length_limit);
+extern unsigned char *copyCharArray(const unsigned char * source, uint32 length);
+extern void copyCharArrayIntoBuffer(const unsigned char * source,  uint32 length, unsigned char * target);
+extern void copyCharArrayIntoBufferWithLimit(const unsigned char * source,  uint32 length, unsigned char * target, uint32 length_limit);
+extern void copyStringIntoBufferWithLimit(const unsigned char * string, unsigned char * target, uint32 length_limit);
 
 
 extern CA* replacePartOfCA(CA* ca, uint16 offset, uint16 old_length, uint8* new_part, uint16 new_part_length );

@@ -1151,7 +1151,7 @@ CA* appendCAWithRemalloc(CA * ca1, CA * ca2, uint8 trim0ofFormer)
 
 
 //without \0
-unsigned char *copyCharArray(const unsigned char * source, uint16 length)
+unsigned char *copyCharArray(const unsigned char * source, uint32 length)
 {
 	unsigned int i;
 	unsigned char *result ;
@@ -1180,7 +1180,7 @@ unsigned char *copyCharArray(const unsigned char * source, uint16 length)
 }
 
 
-void copyCharArrayIntoBuffer(const unsigned char * source,  uint16 length, unsigned char * target)
+void copyCharArrayIntoBuffer(const unsigned char * source,  uint32 length, unsigned char * target)
 {
 	unsigned int i;
 
@@ -1194,7 +1194,7 @@ void copyCharArrayIntoBuffer(const unsigned char * source,  uint16 length, unsig
 
 }
 
-void copyCharArrayIntoBufferWithLimit(const unsigned char * source,  uint16 length, unsigned char * target, uint16 length_limit)
+void copyCharArrayIntoBufferWithLimit(const unsigned char * source,  uint32 length, unsigned char * target, uint32 length_limit)
 {
 	if(length > length_limit)
 	{
@@ -1203,7 +1203,7 @@ void copyCharArrayIntoBufferWithLimit(const unsigned char * source,  uint16 leng
 	copyCharArrayIntoBuffer( source,  length,  target);
 }
 
-void copyStringIntoBufferWithLimit(const unsigned char * string, unsigned char * target, uint16 length_limit)
+void copyStringIntoBufferWithLimit(const unsigned char * string, unsigned char * target, uint32 length_limit)
 {
 	uint16 length = strlen(string)+1;//1 if for ending 0
 	if(length > length_limit)
@@ -1772,14 +1772,6 @@ uint8* parseCharArraySixIntoMac12HexChar( uint8* chararray , uint8 length )//int
 	return ret;
 }
 
-void uint16_into_big_endian_bytes(uint16 number, uint8* buffer, uint16 buffer_len)
-{
-	if(buffer == NULL || buffer_len < 2)
-		return ;
-
-	*buffer = number/256;
-	*(buffer+1) = number%256;
-}
 
 
 

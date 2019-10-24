@@ -33,4 +33,13 @@ extern void doOffsetByShortPW(uint8* shortPW, uint8* data, uint16 data_length);
 //在offset数据的基础上复原原来数据，长度不变。在使用前请复制原来的数据
 extern void restoreOffsetByShortPW(uint8* shortPW, uint8* offsetData, uint16 offsetData_length);
 
+
+extern uint32 ceil(uint32 num,uint32 dividor);
+
+//from itrackerMath.c
+extern uint32 get_ceiling_bytes_len( uint32 bits_len);
+extern void uint16_into_big_endian_bytes(uint16 number, uint8* buffer, uint16 buffer_len);
+extern uint16 getUint16_big_endian( uint8* p );
+
+
 #endif /* CTOOLS_H_ */

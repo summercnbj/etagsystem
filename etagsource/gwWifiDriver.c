@@ -71,14 +71,14 @@ uint8* getGwHardwareVersion()
 
 
 
-void rebooting()
+void wifiRebooting()
 {
 	//TODO 重启
 
 
 }
 
-void resetFactory()
+void wifiResetFactory()
 {
 	deleteNvramId(NVRAMID_CLOUDINFO_PROTOCOL);
 	deleteNvramId(NVRAMID_CLOUDINFO_HOST);
@@ -91,7 +91,7 @@ void resetFactory()
 	deleteNvramId(NVRAMID_UPDATING_SHORTPW_TO_BLE);
 
 	//reset重启
-	rebooting();
+	wifiRebooting();
 }
 
 
@@ -105,4 +105,13 @@ uint8* formUuidBytes(uint8* macBytes)
 		return NULL;
 	copyCharArrayIntoBuffer(macBytes,MAC_BYTE_LENGTH,uuid);
 	return uuid;
+}
+
+
+
+void wifiSendUart(uint8* data, uint16 length)
+{
+	//TODO 发往uart
+
+
 }

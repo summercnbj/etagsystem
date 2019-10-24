@@ -69,6 +69,8 @@ void versionBytes2String(uint8* twoBytes, uint8* buf, uint16 buf_length)
 }
 
 
+
+
 //在原数据的基础上重新排列，长度不变。在使用前请复制原来的数据
 void doOffsetByShortPW(uint8* shortPW, uint8* data, uint16 data_length)
 {
@@ -84,6 +86,47 @@ void restoreOffsetByShortPW(uint8* shortPW, uint8* offsetData, uint16 offsetData
 	myPrintf("restoreOffsetByShortPW offsetData_length= %d\n",offsetData_length);
 
 }
+
+
+uint32 ceil(uint32 num,uint32 dividor)
+{
+	uint32 ret = num/dividor;
+	if( num % dividor != 0)
+	{
+		ret ++;
+	}
+	return ret;
+}
+
+
+
+
+//~~~~~~~~~~~~~~~~~~from itrackerMath.c~~~~~~~~~~~~~~~~~~~~~~~~~~
+uint32 get_ceiling_bytes_len( uint32 bits_len)
+{
+	uint32 bytes_len = bits_len/8;
+
+	if( 0 != bits_len%8 )
+	{
+		bytes_len++;
+	}
+	return bytes_len;
+}
+uint16 getUint16_big_endian( uint8* p )
+{
+    return (((uint16)(*p)) << 8) + *(p+1) ;
+}
+
+void uint16_into_big_endian_bytes(uint16 number, uint8* buffer, uint16 buffer_len)
+{
+	if(buffer == NULL || buffer_len < 2)
+		return ;
+
+	*buffer = (number>>8) & 0xff;
+	*(buffer+1) = number & 0xff;
+}
+
+
 
 
 #if 0

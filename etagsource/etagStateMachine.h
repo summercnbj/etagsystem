@@ -24,14 +24,14 @@
 
 //未初始化，已绑定
 #define Etag_State_Initial_ProductBound 0x03
-#define Etag_State_Initial_ProductBound_Pixeldata 0x31
-#define Etag_State_Initial_ProductBound_NoPixeldata 0x32//没有图案不允许绑定
+//#define Etag_State_Initial_ProductBound_Pixeldata 0x31
+//#define Etag_State_Initial_ProductBound_NoPixeldata 0x32//没有图案不允许绑定
 
 //已初始化，已绑定且在线
 #define Etag_State_Online_ProductBound 0x04//有2种:
 #define Etag_State_Online_Normal_ProductBound 0x41//没有新图案。
 #define Etag_State_Online_ProductBound_New_Pixeldata 0x42// 有了新图案
-#define Etag_State_Online_ProductBound_NoPixelData 0x43//绑定了商品，却没有点阵数据及其MD5_16。上位系统(中石化零售系统)故障。没有图案不允许绑定。
+//#define Etag_State_Online_ProductBound_NoPixelData 0x43//绑定了商品，却没有点阵数据及其MD5_16。上位系统(中石化零售系统)故障。没有图案不允许绑定。
 
 //已初始化，已绑定且不在线
 #define Etag_State_Offline_ProductBound 0x05//有3种:
@@ -42,7 +42,7 @@
 
 
 //泛状态
-#define Etag_State_Offline =0xfe//包含已初始化，未绑定Etag_State_Offline_ProductUnbound = 0x02有3种和已初始化，已绑定且不在线Etag_State_Offline_ProductBound =0x05有3种。
+#define Etag_State_Offline 0xfe//包含已初始化，未绑定Etag_State_Offline_ProductUnbound = 0x02有3种和已初始化，已绑定且不在线Etag_State_Offline_ProductBound =0x05有3种。
 
 
 

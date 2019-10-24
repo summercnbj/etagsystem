@@ -27,7 +27,7 @@ extern uint8* getGwProductModel();
 extern uint8* getGwSoftwareVersion();
 extern uint8* getGwHardwareVersion();
 
-extern void resetFactory();
+extern void wifiResetFactory();
 
 
 //macBytes with length of MAC_BYTE_LENGTH=6

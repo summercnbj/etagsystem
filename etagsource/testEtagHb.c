@@ -8,7 +8,7 @@
 
 #include "etagBleAdv.h"
 #include "gwBleScanAndConnect.h"
-
+#include "serverEtagHbFeedback.h"
 
 void testEtagHbAdv_andParse()
 {
@@ -30,12 +30,32 @@ void testEtagHbAdv_andParse()
 
 }
 
-#if 1
+void testEtagHbFeedbackState_andParse()
+{
+	uint8* shortPW = "123456";
+	uint16 flowNo = 22855;
+	uint8 macBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};
+	uint8 etagState = Etag_State_Illegal;
+
+
+	uint16 md5_and_CTPE_length = 200;
+	uint8 md5_and_CTPE[md5_and_CTPE_length];
+
+
+	uint16 package_length =0;
+	uint8* feedbackState = getEtagHbFeedbackStatePackage(shortPW,  flowNo, macBytes, etagState,md5_and_CTPE, md5_and_CTPE_length,&package_length);
+
+	parseHbFeedback( shortPW,  feedbackState,  package_length,  macBytes);
+	myFree(feedbackState);
+}
+
+
+#if 0
 int main()
 {
 
-	testEtagHbAdv_andParse();
-
+//	testEtagHbAdv_andParse();
+	testEtagHbFeedbackState_andParse();
 
 }
 #endif

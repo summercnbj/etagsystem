@@ -13,6 +13,8 @@
 #include "commands.h"
 #include "gwStateMachine.h"
 #include "nvramApi.h"
+#include "etagStateMachine.h"
+
 
 #define GW_BLE_QTY 3
 

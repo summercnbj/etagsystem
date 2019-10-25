@@ -18,7 +18,6 @@
 //#define myFree free
 
 
-extern int stringlen(uint8* string);
 
 
 #define VERSION_BYTE_LENGTH 2
@@ -34,6 +33,14 @@ extern void doOffsetByShortPW(uint8* shortPW, uint8* data, uint16 data_length);
 extern void restoreOffsetByShortPW(uint8* shortPW, uint8* offsetData, uint16 offsetData_length);
 
 
+
+//~~~~~~~~~~~~~~~~~~from itrackerString.c~~~~~~~~~~~~~~~~~~~~~~~~~~
+extern void strcatChar(uint8* string, char c);
+extern int stringlen(uint8* string);
+
+
+
+//~~~~~~~~~~~~~~~~~~from itrackerMath.c~~~~~~~~~~~~~~~~~~~~~~~~~~
 extern uint32 ceil(uint32 num,uint32 dividor);
 
 //from itrackerMath.c

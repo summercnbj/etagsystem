@@ -9,16 +9,6 @@
 #include "commands.h"
 
 
-int stringlen(uint8* string)
-{
-	int string_length =0;
-	if(string !=NULL)
-	{
-		string_length = strlen(string);
-	}
-	return string_length;
-}
-
 
 //分成2bytes。   "87a.a66"-->87,0; "  87.6a6"-->87,6;  " 287.6 9"-->31,6;  因为287超过了256
 int8 versionBytes(uint8* version, uint8* buffer, uint8 bufferlen)
@@ -88,17 +78,29 @@ void restoreOffsetByShortPW(uint8* shortPW, uint8* offsetData, uint16 offsetData
 }
 
 
-uint32 ceil(uint32 num,uint32 dividor)
+
+
+
+
+//~~~~~~~~~~~~~~~~~~from itrackerString.c~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void strcatChar(uint8* string, char c)
 {
-	uint32 ret = num/dividor;
-	if( num % dividor != 0)
-	{
-		ret ++;
-	}
-	return ret;
+	uint8* p = string;
+	while(*p)
+	{p++;}
+	*p =c;
 }
 
-
+int stringlen(uint8* string)
+{
+	int string_length =0;
+	if(string !=NULL)
+	{
+		string_length = strlen(string);
+	}
+	return string_length;
+}
 
 
 //~~~~~~~~~~~~~~~~~~from itrackerMath.c~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,7 +128,15 @@ void uint16_into_big_endian_bytes(uint16 number, uint8* buffer, uint16 buffer_le
 	*(buffer+1) = number & 0xff;
 }
 
-
+uint32 ceil(uint32 num,uint32 dividor)
+{
+	uint32 ret = num/dividor;
+	if( num % dividor != 0)
+	{
+		ret ++;
+	}
+	return ret;
+}
 
 
 #if 0

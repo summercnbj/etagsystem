@@ -15,6 +15,10 @@
 #include "nvramApi.h"
 
 
+#include "bleDriver.h"
+
+
+
 extern void sendUart(uint8* data,uint16 data_length);
 
 //TODO 被驱动调用：从uart协议里解出的data

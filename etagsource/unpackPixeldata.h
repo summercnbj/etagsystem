@@ -14,7 +14,9 @@
 #include "gwStateMachine.h"
 
 
-//{0,0,295,127,w,r,1,4736} or  {0,0,295,127,w,r,1,4736,0,4088}
+#include "pixeldataCommon.h"
+
+//适用于{0,0,295,127,w,r,1,4736} SAP_header or  {0,0,295,127,w,r,1,4736,0,4088}  SSP_header
 struct bracketHeader_struct
 {
 	uint16 headerLength;//{0,0,295,127,w,r,1,4736}长度为24
@@ -33,38 +35,65 @@ struct bracketHeader_struct
 typedef struct bracketHeader_struct BracketHeader;
 
 
+//SAFS header例子{0,0,295,127,w,r,1,4736,2},{0,0,1023,739,w,b,1,95232,24}
+struct SAFS_header_struct
+{
+	uint32 lefttopHorizontal;
+	uint32 lefttopVertical;
+
+	uint32 rightbuttonHorizontal;//=horizontal-1
+	uint32 rightbuttonVertical;//=vertical-1
+
+	char backcolor ;
+	char forecolor;
+	uint8 driver_type ;
+	uint32 pixeldataSize;
+
+	uint16 totalSlices;//总共分片数
+};
+typedef struct SAFS_header_struct SAFS_header;
+
+
+
 //[560,zlib1.2]  FCSSP中的格式化头
 struct FCSSP_Formatter_struct
 {
-	uint16 formatterLength;//[560,zlib1.2]长度为13
+	uint8* csspPointer;//原字符串FCSSP中的该cssp压缩二进制的起始指针
 
+	uint16 formatterLength;//[560,zlib1.2]长度为13
 	uint32 csspLength;//[560,zlib1.2] CSSP长度为560
 	uint8* compressor;//string为"zlib1.2"
-
-	uint8* formatterStart;//原字符串FCSSPs中的该FCSSP起始指针
 };
 typedef struct FCSSP_Formatter_struct FCSSP_Formatter;
 
 
-//价签概要[296,128,wbr](ETAG abstract参见《电子价签云服务器接口规范三(价签布局，ETAG LAYOUT)》)
-struct ETAG_abstract_struct
-{
-	uint16 etagLength;//[296,128,wbr]的长度为13
 
-	uint32 horizontal;//296
-	uint32 vertical;//128
-	uint8* colors;//string "wbr"
+
+//三色屏的完整分片压缩数据描述
+struct FFCS_Details_struct
+{
+	uint8* etagAbstract;//string
+
+	uint8* SAFSheader1;//string
+	FCSSP_Formatter** fcsspFormaters1;
+	uint16 fcsspFormaters1_qty;
+
+	uint8* SAFSheader2;//string
+	FCSSP_Formatter** fcsspFormaters2;
+	uint16 fcsspFormaters2_qty;
 };
-typedef struct ETAG_abstract_struct ETAG_abstract;
+typedef struct FFCS_Details_struct FFCS_Details;
+
+
 
 #if defined _itrackerDebug_
 extern void printBracketHeader(BracketHeader* header);
+extern void printSAFS_header(SAFS_header* header);
 extern void printFCSSP_Formatter(FCSSP_Formatter* formatter);
-extern void printETAG_abstract(ETAG_abstract* abstract);
+extern void printFFCS_Details(FFCS_Details * ffcs);
 #endif
 
 //void freeCSSP_Formatter(CSSP_Formatter* formatter);
-
 
 
 

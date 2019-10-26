@@ -14,8 +14,7 @@
 #include "commands.h"
 #include "nvramApi.h"
 
-//macBytes with length of MAC_BYTE_LENGTH=6
-extern uint8* formUuidBytes(uint8* macBytes);
+
 
 /** 获得已经加密组装了流水号的GW心跳包，准备发送到云服务器
  * @shortPW 密码

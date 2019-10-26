@@ -30,27 +30,64 @@ void testEtagHbAdv_andParse()
 
 }
 
+#include "gwWifiParseHbFeedback.h"
+#include "serverPixeldata.h"
 void testEtagHbFeedbackState_andParse()
 {
 	uint8* shortPW = "123456";
 	uint16 flowNo = 22855;
-	uint8 macBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};
-	uint8 etagState = Etag_State_Illegal;
+	uint8 wifiMacBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};
+
+	uint8 etagMacBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};
+//	uint8 etagState = Etag_State_Illegal;
+	uint8 etagState = Etag_State_Online_ProductBound_New_Pixeldata;
+
+	uint8 md5_16_bytes[MD5_16_BYTE_LENGTH] = {0x88,0x77,0x66,0x55,0x44,0x33,0x22,0x11};
 
 
-	uint16 md5_and_CTPE_length = 200;
-	uint8 md5_and_CTPE[md5_and_CTPE_length];
+	uint16 horizontal = 1024;
+	uint16 vertical=740;
+	uint8 driver_type = DRIVER_TYPE_by_VERTICAL;
+	char backcolor = CHAR_COLOR_WHITE;
+	char forecolor1 = CHAR_COLOR_BLACK;
+	char forecolor2 = CHAR_COLOR_RED;
+	uint32 pixeldata_size = getSizeOfSingleAreaPixeldata(horizontal,  vertical,  driver_type);
+	uint8 pixeldata[pixeldata_size];
 
 
-	uint16 package_length =0;
-	uint8* feedbackState = getEtagHbFeedbackStatePackage(shortPW,  flowNo, macBytes, etagState,md5_and_CTPE, md5_and_CTPE_length,&package_length);
+#define TO_SEE_COMPRESSED_CONTENT 1
+#if TO_SEE_COMPRESSED_CONTENT
+		//to see the content
+		uint32 i =0;
+		for(i=0;i<pixeldata_size;i++)
+		{
+			uint8 c = i & 0xff;
+			if( c < '!')
+			{
+				c = '!';
+			}
+			else if( c > '}')
+			{
+				c = '}';
+			}
+			*(pixeldata + i) = c;//test data
+		}
+#endif
 
-	parseHbFeedback( shortPW,  feedbackState,  package_length,  macBytes);
+	uint32 FFCS_length =0;
+	uint8* ffcs = formFFCS( horizontal,  vertical,  driver_type, pixeldata,
+			 backcolor, forecolor1, forecolor2, &FFCS_length);
+
+
+	uint32 package_length =0;
+	uint8* feedbackState = getEtagHbFeedbackStatePackage(shortPW,  flowNo, wifiMacBytes, etagMacBytes, etagState, md5_16_bytes,ffcs ,FFCS_length ,&package_length);
+
+	parseHbFeedback( shortPW,  feedbackState,  package_length,  wifiMacBytes);
 	myFree(feedbackState);
 }
 
 
-#if 0
+#if 1
 int main()
 {
 

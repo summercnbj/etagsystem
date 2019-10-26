@@ -15,6 +15,6 @@
 #include "nvramApi.h"
 
 
-extern void bleParseUartPackage(uint8* package,uint16 package_length);
+extern void bleParseUartPackage(uint8* package,uint32 package_length);
 
 #endif /* GWBLEPARSEUART_H_ */

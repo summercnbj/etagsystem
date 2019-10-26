@@ -109,9 +109,18 @@ uint8* formUuidBytes(uint8* macBytes)
 
 
 
-void wifiSendUart(uint8* data, uint16 length)
+void wifiSend2Uart(uint8* data, uint32 length)
 {
-	//TODO 发往uart
+	//TODO driver
+
+
+	myPrintf("[wifiSend2Uart] length=%lld\n",length);
+
+#if defined TESTING_SUMMER
+#include "gwBleParseUart.h"
+	//only for test
+	bleParseUartPackage(data,length);
+#endif
 
 
 }

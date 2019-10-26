@@ -14,7 +14,7 @@
 #include "commands.h"
 #include "gwStateMachine.h"
 
-
+#define SSPHEADER_LENGTH_MAX 48  // (SSPheader len > SAFSheader len > SAPheader len)
 
 //价签概要[296,128,wbr](ETAG abstract参见《电子价签云服务器接口规范三(价签布局，ETAG LAYOUT)》)
 struct ETAG_abstract_struct
@@ -25,7 +25,7 @@ struct ETAG_abstract_struct
 	uint32 vertical;//128
 	uint8* colors;//string "wbr"
 };
-typedef struct ETAG_abstract_struct ETAG_abstract;
+typedef struct ETAG_abstract_struct ETAGabstract;
 
 
 
@@ -39,14 +39,17 @@ typedef struct ETAG_abstract_struct ETAG_abstract;
 #define CHAR_COLOR_RED 'r'
 
 
+//根据驱动扫描是横向还是纵向，计算SAP里的pixeldata size
+extern uint32 getSizeOfSingleAreaPixeldata(uint32 horizontal, uint32 vertical, uint8 driver_type);
 
+extern void freeETAGabstract(ETAGabstract* abstract);
 
 extern uint8* formEtagAbstract(uint32 horizontal, uint32 vertical, char backcolor,char forecolor1,char forecolor2);
 
-extern ETAG_abstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length);
+extern ETAGabstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length);
 
 #if defined _itrackerDebug_
-extern void printETAG_abstract(ETAG_abstract* abstract);
+extern void printETAGabstract(ETAGabstract* abstract);
 #endif
 
 #endif /* PIXELDATACOMMON_H_ */

@@ -9,12 +9,32 @@
 #include "pixeldataCommon.h"
 
 
+//根据驱动扫描是横向还是纵向，计算SAP里的pixeldata size
+uint32 getSizeOfSingleAreaPixeldata(uint32 horizontal, uint32 vertical, uint8 driver_type)
+{
+	if( DRIVER_TYPE_by_VERTICAL == driver_type)
+	{
+		uint32 ver = get_ceiling_bytes_len( vertical);
+		myPrintf("ver= %d\n",ver);
+		return ver*horizontal;
+	}
+	else if( DRIVER_TYPE_by_VERTICAL == driver_type)
+	{
+		uint32 hor = get_ceiling_bytes_len( horizontal);
+		return vertical*hor;
+	}
+	return 0;
+}
+
+
+
+
 #if defined _itrackerDebug_
-void printETAG_abstract(ETAG_abstract* abstract)
+void printETAGabstract(ETAGabstract* abstract)
 {
 	if( abstract == NULL)
 	{
-		myPrintf("printETAG_abstract abstract is NULL\n");
+		myPrintf("printETAGabstract abstract is NULL\n");
 		return;
 	}
 	myPrintf("abstractLength= %d\n", abstract->abstractLength );
@@ -24,6 +44,15 @@ void printETAG_abstract(ETAG_abstract* abstract)
 	myPrintf("colors= %s\n\n", abstract->colors );
 }
 #endif
+
+void freeETAGabstract(ETAGabstract* abstract)
+{
+	if(abstract)
+	{
+		myFree(abstract->colors);
+		myFree(abstract);
+	}
+}
 
 #define ETAGABSTRACT_LENGTH_MAX 20
 uint8* formEtagAbstract(uint32 horizontal, uint32 vertical, char backcolor,char forecolor1,char forecolor2)
@@ -49,7 +78,7 @@ uint8* formEtagAbstract(uint32 horizontal, uint32 vertical, char backcolor,char 
 }
 
 
-ETAG_abstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length)
+ETAGabstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length)
 {
 
 	if(abstract == NULL || abstract_length < 2 )//"[]"
@@ -58,7 +87,7 @@ ETAG_abstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length)
 	}
 
 	uint8 finish =0;
-	ETAG_abstract * structAbstract = NULL;
+	ETAGabstract * structAbstract = NULL;
 
 #define UNPACKFCSAP_BUFFER_LENGTH 10
 	uint8 buf[UNPACKFCSAP_BUFFER_LENGTH];
@@ -68,7 +97,7 @@ ETAG_abstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length)
 	uint8* p = abstract;
 	if( *p == '[')
 	{
-		structAbstract = (ETAG_abstract*)myMalloc(sizeof(ETAG_abstract),_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+		structAbstract = (ETAGabstract*)myMalloc(sizeof(ETAGabstract),_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
 		if(structAbstract == NULL)
 		{
 			return NULL;
@@ -127,6 +156,7 @@ ETAG_abstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length)
 			if( *p == ']')
 			{
 //				finish =1;
+				structAbstract->abstractLength = p+1-abstract;
 				return structAbstract;//成功
 //				break;//finish quit
 			}
@@ -153,7 +183,7 @@ ETAG_abstract* parseETAG_abstract(uint8* abstract, uint32 abstract_length)
 		else
 		{
 			//缺少结束的 ']'
-			freeETAG_abstract(structAbstract);
+			freeETAGabstract(structAbstract);
 			return NULL;
 		}
 	}

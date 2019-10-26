@@ -90,6 +90,38 @@ void masterParseBleAdvPackage(uint8* package,uint16 package_length, uint8* short
 }
 
 
+uint8* get_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_from_ONUART(uint8* package_ONUART,uint32 package_length_ONUART)
+{
+	uint8* package2etag = (uint8*)myMalloc(package_length_ONUART - MAC_BYTE_LENGTH,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+	* package2etag = *package_ONUART;
+	* (package2etag+CMD_LENGTH) = *(package_ONUART + CMD_LENGTH + MAC_BYTE_LENGTH);
+	* (package2etag+CMD_LENGTH+SUBCMD_LENGTH) = *(package_ONUART + CMD_LENGTH + MAC_BYTE_LENGTH+SUBCMD_LENGTH);
+	copyCharArrayIntoBuffer( package_ONUART + TAG_ETAG_GW_HB_FEEDBACK_STATE_ONUART_HEADER_LENGTH,
+			package_length_ONUART -TAG_ETAG_GW_HB_FEEDBACK_STATE_ONUART_HEADER_LENGTH, package2etag +TAG_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_HEADER_LENGTH);
+
+	return package2etag;
+}
+
+void masterSendPackage(uint8* package_ONBLE,uint32 package_length_ONBLE, uint8* shortPW, uint8* peripheralMacBytes)
+{
+	myPrintf("[masterSendPackage] package_length_ONBLE=%lld\n",package_length_ONBLE);
+
+#if defined TESTING_SUMMER
+
+#include "etagBleParse.h"
+	slaveParseBlePackage( package_ONBLE, package_length_ONBLE);
+#endif
+
+
+
+
+
+	//TODO 分包协议 并添加到缓存里：要同时记录peripheralMacBytes,然后过滤该mac去连接发送。
+
+
+
+
+}
 
 
 

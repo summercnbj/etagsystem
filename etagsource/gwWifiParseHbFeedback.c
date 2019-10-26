@@ -5,7 +5,8 @@
  *      Author: summer
  */
 #include "gwWifiParseHbFeedback.h"
-#include "gwWifiDriver.h"
+
+#include "gwWifiCaches.h"
 
 //~~~~~~~~~~~~~~~~~~~~见十~~~~~~~~~~~~~~~~~~~
 
@@ -31,7 +32,8 @@ void to_send_NEW_SHORTPW_ONUART(uint8* newShortPW)
 	//TODO  向网关里的所有蓝牙发送GW_NEW_SHORTPW_ONUART并确保都收到了: 发向缓存sendingCache2Uart
 
 	uint8* pack = get_GW_NEW_SHORTPW_ONUART(newShortPW);
-	wifiSendUart(pack, GW_NEW_SHORTPW_ONUART_LENGTH);
+
+	int8 append = appendCache2AllUarts( pack, GW_NEW_SHORTPW_ONUART_LENGTH);
 
 	myFree(pack);
 
@@ -103,12 +105,9 @@ void disposeGwState(uint8 gwState)
 
 }
 
-void disposeEtagState(uint8 etagState,uint8* decoded_hbfeedback, uint16 decryptSize)
+void disposeEtagState(uint8* etagMacBytes, uint8 etagState,uint8* decoded_hbfeedback, uint16 decryptSize)
 {
 	uint8* etagGwHbFeedbackOnUart_header = decoded_hbfeedback;
-	uint16 header_length = CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH + STATE_LENGTH;
-	uint8* md5_16_bytes = decoded_hbfeedback + CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH + STATE_LENGTH;
-	uint16 md5_16_bytes_length = decryptSize - (CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH +STATE_LENGTH);
 
 	if( Etag_State_Online_ProductBound == etagState)
 	{
@@ -116,21 +115,24 @@ void disposeEtagState(uint8 etagState,uint8* decoded_hbfeedback, uint16 decryptS
 	}
 	else
 	{
-		// 全部转发
-		if(md5_16_bytes_length != 0)
+		// 全部转发: 有MD5_16_bytes + FFCS数据
+		if(decryptSize > ETAG_HB_FEEDBACK_HEADER_LENGTH + MD5_16_BYTE_LENGTH)
 		{//分包处理
 
 			//参见  电子价签云服务器接口规范二 价签点阵数据定义V1.1
 
+			uint8* md5_16_bytes = decoded_hbfeedback + ETAG_HB_FEEDBACK_HEADER_LENGTH; //MD5_16_BYTE_LENGTH
+			uint8* ffcs = decoded_hbfeedback + ETAG_HB_FEEDBACK_HEADER_LENGTH + MD5_16_BYTE_LENGTH;
+			uint16 FFCS_length = decryptSize - ETAG_HB_FEEDBACK_HEADER_LENGTH - MD5_16_BYTE_LENGTH;
 
-//			wifiSendUart
+			//分包后全部放入缓存
+			int8 send = sendOneFFCS(etagMacBytes, etagState, md5_16_bytes,  ffcs,  FFCS_length);
 		}
 		else
 		{
-			wifiSendUart(etagGwHbFeedbackOnUart_header,header_length);
+			appendCache2Uart(etagMacBytes, etagGwHbFeedbackOnUart_header,ETAG_HB_FEEDBACK_HEADER_LENGTH);
 		}
 	}
-
 }
 
 #include "gwWifiDriver.h"
@@ -159,8 +161,8 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 	uchar* decode = blowfishDec(shortPW, hbFeedbackPackage + FLOWNO_BYTE_LENGTH ,
 			hbFeedbackPackage_length -(FLOWNO_BYTE_LENGTH ) , &decryptSize);
 
-	//GW_HB_FEEDBACK_LENGTH=9 or ETAG_GW_HB_FEEDBACK_LENGTH(9+N) or GW_NEW_SHOWRTPW_LENGTH=14
-	if(decode == NULL || decryptSize < GW_HB_FEEDBACK_LENGTH)
+	//ETAG_GW_HB_FEEDBACK_STATE_LENGTH=9 or ETAG_GW_HB_FEEDBACK_STATE_LENGTH(9+N) or GW_NEW_SHOWRTPW_LENGTH=14
+	if(decode == NULL || decryptSize < ETAG_GW_HB_FEEDBACK_STATE_LENGTH)
 	{//blowfish解密失败
 		return ;
 	}
@@ -176,7 +178,7 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 	uint8 subcmd = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH );
 
 	myPrintf("parseHbFeedback cmd =0x%x, subcmd= 0x%x\n",*decode,subcmd);
-	if(CMD_GW_HB_FEEDBACK == *decode)
+	if(CMD_ETAG_GW_HB_FEEDBACK_STATE == *decode)
 	{
 		//TODO cancel TIMER_TIMEOUT_SET_GW_OFFLINE  (in gwWifiHb.c)
 
@@ -194,14 +196,15 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 		}
 
 	}
-	else if(CMD_TAG_GW_HB_FEEDBACK == *decode)
+	else if(CMD_TAG_ETAG_GW_HB_FEEDBACK_STATE == *decode)
 	{
 		if( SUBCMD_TAG_STATE == subcmd )
 		{
-			uint8 etagState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH);
+			uint8 etagState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH + MAC_BYTE_LENGTH);
 			myPrintf("parseHbFeedback etagState =0x%x\n",etagState);
 
-			disposeEtagState(etagState, decode,decryptSize );
+			uint8* etagMacBytes = decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH;
+			disposeEtagState(etagMacBytes,etagState, decode,decryptSize );
 		}
 	}
 

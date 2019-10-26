@@ -11,9 +11,12 @@
 
 //~~~~~~~~~~~~~~~~~~~~~~~解析所有的{header}:SAP header or SSP header~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-//返回malloc。用完要myFree()
-//适用于{0,0,295,127,w,r,1,4736} SAP_header or  {0,0,295,127,w,r,1,4736,0,4088}  SSP_header 解析成结构体
-BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
+/* 返回malloc。用完要myFree()
+ * 适用于 SSPheader 例子   {0,0,295,127,w,r,1,4736,0,4088}   or
+ *     SAPheader 例子   {0,0,295,127,w,r,1,4736}  or
+ *     SAFSheader例子   {0,0,295,127,w,r,1,4736,2},{0,0,1023,739,w,b,1,95232,24}
+ */
+uint8* parseBracketHeader(uint8* header, uint32 header_length)
 {
 	if(header == NULL || header_length ==0)
 	{
@@ -44,8 +47,25 @@ BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
 		}
 		else if( *p == ',' || *p == '}')
 		{
-			if(0 == counter || 1 == counter)
+			if(0 == counter)
 			{
+				long long digit = atoll(b);
+				if(bracketheader == NULL)
+				{//没有开头的 '{'
+					return NULL;
+				}
+				else
+				bracketheader->lefttopHorizontal = digit;
+			}
+			else if(1 == counter)
+			{
+				long long digit = atoll(b);
+				if(bracketheader == NULL)
+				{//没有开头的 '{'
+					return NULL;
+				}
+				else
+				bracketheader->lefttopVertical = digit;
 			}
 			else if(4 == counter)
 			{
@@ -75,7 +95,7 @@ BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
 						return NULL;
 					}
 					else
-					bracketheader->horizontal = digit +1;
+					bracketheader->rightbuttonHorizontal = digit;
 				}
 				else if(3 == counter)
 				{
@@ -84,7 +104,7 @@ BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
 						return NULL;
 					}
 					else
-					bracketheader->vertical = digit +1;
+					bracketheader->rightbuttonVertical = digit;
 				}
 				else if(6 == counter)
 				{
@@ -120,7 +140,7 @@ BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
 						return NULL;
 					}
 					else
-					bracketheader->piecelen = digit;
+					bracketheader->sliceLen = digit;
 				}
 			}
 
@@ -130,8 +150,10 @@ BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
 			counter ++;
 			if( *p == '}')
 			{
-				finish =1;
-				break;//finish quit
+//				finish =1;
+//				break;//finish quit
+				bracketheader->headerLength = p- header +1;
+				return (uint8*)bracketheader;
 			}
 		}
 		else
@@ -151,8 +173,8 @@ BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
 	{
 		if(finish)
 		{//成功
-			bracketheader->headerLength = p- header +1;
-			return bracketheader;
+//			bracketheader->headerLength = p- header +1;
+//			return bracketheader;
 		}
 		else
 		{
@@ -161,39 +183,117 @@ BracketHeader* parseBracketHeader(uint8* header, uint32 header_length)
 			return NULL;
 		}
 	}
+	return NULL;
+}
+
+SSPheader* parseSSPheader(uint8* header, uint32 header_length)
+{
+	return  (SSPheader*)parseBracketHeader( header,  header_length);
+}
+
+SAPheader* parseSAPheader(uint8* header, uint32 header_length)
+{
+	return  (SAPheader*)parseBracketHeader( header,  header_length);
+}
+
+SAFSheader* parseSAFSheader(uint8* header, uint32 header_length)
+{
+	return  (SAFSheader*)parseBracketHeader( header,  header_length);
 }
 
 
 #if defined _itrackerDebug_
-//适用于{0,0,295,127,w,r,1,4736} SAP_header or  {0,0,295,127,w,r,1,4736,0,4088}  SSP_header
+/*
+ * 适用于 SSPheader 例子   {0,0,295,127,w,r,1,4736,0,4088}   or
+ *     SAPheader 例子   {0,0,295,127,w,r,1,4736}  or
+ *     SAFSheader例子   {0,0,295,127,w,r,1,4736,2},{0,0,1023,739,w,b,1,95232,24}
+ */
 void printBracketHeader(BracketHeader* header)
 {
+	uint8* functionname = "printBracketHeader";
+	myPrintf("[%s]:\n",functionname);
 	if( header == NULL)
 	{
-		myPrintf("printBracketHeader header is NULL\n");
+		myPrintf("[%s] header is NULL\n",functionname);
 		return;
 	}
 	myPrintf("headerLength= %d\n", header->headerLength );
-	myPrintf("horizontal= %ld\n", header->horizontal );
-	myPrintf("vertical= %ld\n", header->vertical );
+	myPrintf("lefttopHorizontal= %ld\n", header->lefttopHorizontal );
+	myPrintf("lefttopVertical= %ld\n", header->lefttopVertical );
+
+	myPrintf("rightbuttonHorizontal= %ld\n", header->rightbuttonHorizontal );
+	myPrintf("rightbuttonVertical= %ld\n", header->rightbuttonVertical );
+
 	myPrintf("backcolor= %c\n", header->backcolor );
 	myPrintf("forecolor= %c\n", header->forecolor );
 	myPrintf("driver_type= %d\n", header->driver_type );
 	myPrintf("pixeldataSize= %ld\n", header->pixeldataSize );
 
-	myPrintf("number= %ld\n", header->number );
-	myPrintf("piecelen= %ld\n\n", header->piecelen );
+	myPrintf("number= %lld\n", header->number );
+	myPrintf("piecelen= %ld\n\n", header->sliceLen );
+}
+
+void printSSPheader(SSPheader* header)
+{
+	uint8* functionname = "printSSPheader";
+	myPrintf("[%s]:\n",functionname);
+	if( header == NULL)
+	{
+		myPrintf("[%s] header is NULL\n",functionname);
+		return;
+	}
+	myPrintf("headerLength= %d\n", header->headerLength );
+	myPrintf("lefttopHorizontal= %ld\n", header->lefttopHorizontal );
+	myPrintf("lefttopVertical= %ld\n", header->lefttopVertical );
+
+	myPrintf("rightbuttonHorizontal= %ld\n", header->rightbuttonHorizontal );
+	myPrintf("rightbuttonVertical= %ld\n", header->rightbuttonVertical );
+
+	myPrintf("backcolor= %c\n", header->backcolor );
+	myPrintf("forecolor= %c\n", header->forecolor );
+	myPrintf("driver_type= %d\n", header->driver_type );
+	myPrintf("pixeldataSize= %ld\n", header->pixeldataSize );
+
+	myPrintf("number= %lld\n", header->number );
+	myPrintf("piecelen= %ld\n\n", header->sliceLen );
+}
+
+
+void printSAPheader(SAPheader* header)
+{
+	uint8* functionname = "printSAPheader";
+	myPrintf("[%s]:\n",functionname);
+	if( header == NULL)
+	{
+		myPrintf("[%s] header is NULL\n",functionname);
+		return;
+	}
+	myPrintf("headerLength= %d\n", header->headerLength );
+	myPrintf("lefttopHorizontal= %ld\n", header->lefttopHorizontal );
+	myPrintf("lefttopVertical= %ld\n", header->lefttopVertical );
+
+	myPrintf("rightbuttonHorizontal= %ld\n", header->rightbuttonHorizontal );
+	myPrintf("rightbuttonVertical= %ld\n", header->rightbuttonVertical );
+
+	myPrintf("backcolor= %c\n", header->backcolor );
+	myPrintf("forecolor= %c\n", header->forecolor );
+	myPrintf("driver_type= %d\n", header->driver_type );
+	myPrintf("pixeldataSize= %ld\n", header->pixeldataSize );
 }
 
 
 //SAFS header例子{0,0,295,127,w,r,1,4736,2},{0,0,1023,739,w,b,1,95232,24}
-void printSAFS_header(SAFS_header* header)
+void printSAFSheader(SAFSheader* header)
 {
+	uint8* functionname = "printSAFSheader";
+	myPrintf("[%s]:\n",functionname);
 	if( header == NULL)
 	{
-		myPrintf("printSAFS_header header is NULL\n");
+		myPrintf("[%s] header is NULL\n",functionname);
 		return;
 	}
+	myPrintf("headerLength= %d\n", header->headerLength );
+
 	myPrintf("lefttopHorizontal= %lld\n", header->lefttopHorizontal );
 	myPrintf("lefttopVertical= %lld\n", header->lefttopVertical );
 	myPrintf("rightbuttonHorizontal= %lld\n", header->rightbuttonHorizontal );
@@ -204,21 +304,25 @@ void printSAFS_header(SAFS_header* header)
 	myPrintf("driver_type= %d\n", header->driver_type );
 	myPrintf("pixeldataSize= %lld\n", header->pixeldataSize );
 
-	myPrintf("totalSlices= %d\n", header->totalSlices );
+	myPrintf("totalSlices= %lld\n", header->totalSlices );
 }
 
-void printFCSSP_Formatter(FCSSP_Formatter* formatter)
+void printFCSSPformatter(FCSSPformatter* formatter)
 {
+	uint8* functionname = "printFCSSPformatter";
+	myPrintf("[%s]:\n",functionname);
 	if( formatter == NULL)
 	{
-		myPrintf("printCSSP_Formatter formatter is NULL\n");
+		myPrintf("[%s] formatter is NULL\n",functionname);
 		return;
 	}
 	myPrintf("formatterLength= %d\n", formatter->formatterLength );
 
 	myPrintf("csspLength= %ld\n", formatter->csspLength );
 	myPrintf("compressor= %s\n", formatter->compressor );
+	myPrintf("fcsspPointer= %s\n", formatter->fcsspPointer );
 	myPrintf("csspPointer= 0x%x\n\n", formatter->csspPointer );
+
 }
 
 
@@ -236,35 +340,71 @@ void printFCSSP_Formatter(FCSSP_Formatter* formatter)
  *     SSP header例子{0,0,1023,739,w,r,1,95232,22,4092}第22条数据。(从0条开始计数)
  */
 
-void printFFCS_Details(FFCS_Details * ffcs)
+void printFFCSdetails(FFCSdetails * details)
 {
-	if( ffcs == NULL)
+	uint8* functionname = "printFFCSdetails";
+	myPrintf("[%s]:\n",functionname);
+	if( details == NULL)
 	{
-		myPrintf("printFFCS_Details ffcs is NULL\n");
+		myPrintf("[%s] ffcs is NULL\n",functionname);
 		return;
 	}
-	myPrintf("etagAbstract= %s\n", ffcs->etagAbstract );
-	myPrintf("SAFSheader1= %s\n", ffcs->SAFSheader1 );
+	printETAGabstract(details->etagAbstract );
 
-	myPrintf("fcsspFormaters1_qty= %d\n", ffcs->fcsspFormaters1_qty );
+#include "etagBleParse.h"
+	uint8 SSPbuffer[SSP_LENGTH_MAX];//解压缩看看是否成功！！
+	uint32 SSPbuffer_len;
+
+
+	printSAFSheader(details->SAFSheader0 );
+	myPrintf("fcsspFormaters0_qty= %d\n", details->fcsspFormaters0_qty );
 
 	uint16 i;
-	for(i=0;i< ffcs->fcsspFormaters1_qty;i++)
+	for(i=0;i< details->fcsspFormaters0_qty;i++)
 	{
-		printFCSSP_Formatter((ffcs->fcsspFormaters1)[i]);
+		myPrintf("printFFCSdetails NO.0 FCSSP %lld of %lld:\n", i+1, details->fcsspFormaters0_qty);
+		printFCSSPformatter((details->fcsspFormaters0)[i]);
 	}
 
-	myPrintf("SAFSheader2= %s\n", ffcs->SAFSheader2 );
-	myPrintf("fcsspFormaters2_qty= %d\n", ffcs->fcsspFormaters2_qty );
-	for(i=0;i< ffcs->fcsspFormaters2_qty;i++)
+	printSAFSheader(details->SAFSheader1 );
+	myPrintf("fcsspFormaters1_qty= %d\n", details->fcsspFormaters1_qty );
+
+	for(i=0;i< details->fcsspFormaters1_qty;i++)
 	{
-		printFCSSP_Formatter((ffcs->fcsspFormaters2)[i]);
+		myPrintf("printFFCSdetails NO.1 FCSSP %lld of %lld:\n", i+1, details->fcsspFormaters1_qty);
+		printFCSSPformatter((details->fcsspFormaters1)[i]);
+
+		//解压CSSP到SSP 并打印slicePixeldata
+		SSPbuffer_len = SSP_LENGTH_MAX;
+		memset(SSPbuffer,0,SSPbuffer_len);
+		int result = uncompress (SSPbuffer, &SSPbuffer_len, (details->fcsspFormaters1)[i]->csspPointer, (details->fcsspFormaters1)[i]->csspLength);
+		myPrintf("result=%d, SSPbuffer_len=%lld, SSPbuffer=%s\n",result, SSPbuffer_len, SSPbuffer);
+
+		SSPheader* sspHeader = parseSSP( SSPbuffer,  SSPbuffer_len);
+		myPrintf("slicePixeldata len=%lld, slicePixeldata=%s\n", strlen(SSPbuffer+sspHeader->headerLength), SSPbuffer+sspHeader->headerLength);
 	}
 }
 
 #endif
 
-void freeFCSSP_Formatter(FCSSP_Formatter* structFormatter)
+
+void freeBracketHeader(BracketHeader* header)
+{
+	myFree(header);
+}
+void freeSSPheader(SSPheader* header)
+{
+	myFree(header);
+}
+void freeSAPheader(SAPheader* header)
+{
+	myFree(header);
+}
+void freeSAFSheader(SAFSheader* header)
+{
+	myFree(header);
+}
+void freeFCSSPformatter(FCSSPformatter* structFormatter)
 {
 	if(structFormatter)
 	{
@@ -272,15 +412,38 @@ void freeFCSSP_Formatter(FCSSP_Formatter* structFormatter)
 		myFree(structFormatter);
 	}
 }
-void freeETAG_abstract(ETAG_abstract* abstract)
-{
-	if(abstract)
-	{
-		myFree(abstract->colors);
-		myFree(abstract);
-	}
-}
 
+void freeFFCSdetails(FFCSdetails* details)
+{
+
+	uint8* functionname = "freeFFCSdetails";
+	myPrintf("[%s]:\n",functionname);
+	if( details == NULL)
+	{
+		myPrintf("[%s] ffcs is NULL\n",functionname);
+		return;
+	}
+	freeETAGabstract(details->etagAbstract );
+
+	freeSAFSheader(details->SAFSheader0 );
+
+	uint16 i;
+	for(i=0;i< details->fcsspFormaters0_qty;i++)
+	{
+		freeFCSSPformatter((details->fcsspFormaters0)[i]);
+	}
+	myFree(details->fcsspFormaters0);
+
+	freeSAFSheader(details->SAFSheader1 );
+
+	for(i=0;i< details->fcsspFormaters1_qty;i++)
+	{
+		freeFCSSPformatter((details->fcsspFormaters1)[i]);
+	}
+	myFree(details->fcsspFormaters1);
+
+	myFree(details);
+}
 
 
 
@@ -290,7 +453,7 @@ void freeETAG_abstract(ETAG_abstract* abstract)
  * 解析FCSSP中的formatter到结构体
  * 将[560,zlib1.2]byte0~byte559中的[560,zlib1.2]解析成结构体.其中的560是CSSP长度，压缩结果的字节串。
  */
-FCSSP_Formatter* parseFCSSP_Formatter(uint8* formatter, uint32 formatter_length)
+FCSSPformatter* parseFCSSPformatter(uint8* formatter, uint32 formatter_length)
 {
 
 	if(formatter == NULL || formatter_length < 2 )//"[]"
@@ -299,7 +462,7 @@ FCSSP_Formatter* parseFCSSP_Formatter(uint8* formatter, uint32 formatter_length)
 	}
 
 	uint8 finish =0;
-	FCSSP_Formatter * structFormatter = NULL;
+	FCSSPformatter * structFormatter = NULL;
 
 #define UNPACKFCSAP_BUFFER_LENGTH 10
 	uint8 buf[UNPACKFCSAP_BUFFER_LENGTH];
@@ -309,7 +472,7 @@ FCSSP_Formatter* parseFCSSP_Formatter(uint8* formatter, uint32 formatter_length)
 	uint8* p = formatter;
 	if( *p == '[')
 	{
-		structFormatter = (FCSSP_Formatter*)myMalloc(sizeof(FCSSP_Formatter),_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+		structFormatter = (FCSSPformatter*)myMalloc(sizeof(FCSSPformatter),_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
 		if(structFormatter == NULL)
 		{
 			return NULL;
@@ -359,7 +522,8 @@ FCSSP_Formatter* parseFCSSP_Formatter(uint8* formatter, uint32 formatter_length)
 			{
 //				finish =1;
 				p++;
-				structFormatter -> csspPointer = p;
+				structFormatter->fcsspPointer = formatter;
+				structFormatter->csspPointer = p;
 				structFormatter->formatterLength = p- formatter;
 				return structFormatter;//成功
 //				break;//finish quit
@@ -387,7 +551,7 @@ FCSSP_Formatter* parseFCSSP_Formatter(uint8* formatter, uint32 formatter_length)
 		else
 		{
 			//缺少结束的 ']'
-			freeFCSSP_Formatter(structFormatter);
+			freeFCSSPformatter(structFormatter);
 			return NULL;
 		}
 	}
@@ -403,16 +567,16 @@ FCSSP_Formatter* parseFCSSP_Formatter(uint8* formatter, uint32 formatter_length)
  *
  * FCSSP0FCSSP1FCSSP2FCSSP3......  得到其中的第几个FCSSP的结构体描述
  */
-FCSSP_Formatter* getNumberFCSSP(uint8* fcssps,uint32 fcssps_length, uint32 number)
+FCSSPformatter* getNumberFCSSP(uint8* fcssps,uint32 fcssps_length, uint32 number)
 {
 	uint8* p = fcssps;
 	uint32 length = fcssps_length;
-	FCSSP_Formatter*formatter = NULL;
+	FCSSPformatter*formatter = NULL;
 
 	uint32 i=0;
 	while( p-fcssps < fcssps_length)
 	{
-		formatter = parseFCSSP_Formatter( p, length);
+		formatter = parseFCSSPformatter( p, length);
 		if(formatter == NULL)
 		{
 			return NULL;//error data or broken data
@@ -430,72 +594,222 @@ FCSSP_Formatter* getNumberFCSSP(uint8* fcssps,uint32 fcssps_length, uint32 numbe
 	return NULL;
 }
 
-FFCS_Details* parseFFCS(uint8* ffcs, uint32 ffcs_length)
+/*
+总结：最后给FFCS计算MD5_16 16HEX转化为8bytes
+ FFCS = ABSTRACT + SAFS0 + SAFS1
+   = ABSTRACT + (SAFS header + FCSSPs) + (SAFS header + FCSSPs)
+   = ABSTRACT + (SAFS header + 多个(FCSSP Formatter + CSSP(压缩二进制)))
+              + (SAFS header + 多个(FCSSP Formatter + CSSP(压缩二进制)))
+               其中ABSTRACT例子[296,128,wbr]
+ SAFS = SAFS header + FCSSPs
+              其中SAFS header例子{0,0,295,127,w,r,1,4736,2},{0,0,1023,739,w,b,1,95232,24}
+ FCSSP = FCSSP Formatter + CSSP(压缩二进制)
+             其中FCSSP Formatter例子[560,zlib1.2]
+
+ CSSP二进制 由 SSP压缩转化而来。
+
+ SSP = SSP header + 分片点阵数据(pixeldata slice)
+             其中SSP header例子{0,0,1023,739,w,r,1,95232,22,4092}第22条数据长度4092字节。(从0条开始计数)
+ */
+FFCSdetails* parseFFCS(uint8* ffcs, uint32 ffcs_length)
 {
 	if(ffcs == NULL)
 	{
 		return NULL;
 	}
-	ETAG_abstract* abstract = parseETAG_abstract( ffcs, ffcs_length);
+	FFCSdetails* details = (FFCSdetails*)myMalloc(sizeof(FFCSdetails),_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+	if(details == NULL)
+	{
+		myPrintf("parseFFCS malloc FFCSdetails fail.");
+		return NULL;
+	}
+
+	ETAGabstract* abstract = parseETAG_abstract( ffcs, ffcs_length);
+#if defined _itrackerDebug_
+	printETAGabstract(abstract);
+#endif
+	if(abstract  ==NULL)
+	{
+		myPrintf("parseFFCS parseETAG_abstract fail.");
+		return NULL;
+	}
+
+	details->etagAbstract = abstract;
 
 
+	SAFSheader* safsHeader = NULL;
+	uint8* p = ffcs + abstract->abstractLength;//指向第一个
+	uint32 remaining_len = ffcs_length - abstract->abstractLength;
+	uint32 i;
+	if(remaining_len >0)
+	{
+		safsHeader = parseSAFSheader(p, remaining_len);
+#if defined _itrackerDebug_
+		printSAFSheader(safsHeader);
+#endif
+		if(safsHeader  ==NULL)
+		{
+			myPrintf("parseFFCS No.0 parseSAFSheader fail.");
+			return NULL;
+		}
 
+		details->SAFSheader0 = safsHeader;
+		details->fcsspFormaters0_qty = safsHeader->totalSlices;
 
+		details->fcsspFormaters0 = (FCSSPformatter**)myMalloc(sizeof(FCSSPformatter*)*details->fcsspFormaters0_qty,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+		if(abstract  ==NULL)
+		{
+			myPrintf("parseFFCS No.0 malloc %d pices of FCSSPformatter* fail.", details->fcsspFormaters0_qty);
+			return NULL;
+		}
 
+		p += safsHeader->headerLength;
+		remaining_len -= safsHeader->headerLength;
+		for(i=0; i<details->fcsspFormaters0_qty ;i++)
+		{
+			(details->fcsspFormaters0)[i] = parseFCSSPformatter(p,remaining_len);
+			if(safsHeader  ==NULL)
+			{
+				myPrintf("parseFFCS No.0 parseFCSSPformatter fail.");
+				return NULL;
+			}
 
+#if defined _itrackerDebug_
+			myPrintf("printFFCSdetails NO.0 FCSSP %lld of %lld:\n", i+1, details->fcsspFormaters0_qty);
+			printFCSSPformatter((details->fcsspFormaters0)[i]);
+#endif
+
+			//to next
+			p += (details->fcsspFormaters0)[i]->formatterLength + (details->fcsspFormaters0)[i]->csspLength ;
+			remaining_len -= (details->fcsspFormaters0)[i]->formatterLength + (details->fcsspFormaters0)[i]->csspLength ;
+		}
+	}
+
+	if(remaining_len >0)
+	{
+		safsHeader = parseSAFSheader(p, remaining_len);
+#if defined _itrackerDebug_
+		printSAFSheader(safsHeader);
+#endif
+		if(safsHeader  ==NULL)
+		{
+			myPrintf("parseFFCS No.1 parseSAFSheader fail.");
+			return NULL;
+		}
+
+		details->SAFSheader1 = safsHeader;
+		details->fcsspFormaters1_qty = safsHeader->totalSlices;
+
+		details->fcsspFormaters1 = (FCSSPformatter**)myMalloc(sizeof(FCSSPformatter*)*details->fcsspFormaters1_qty,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+		if(abstract  ==NULL)
+		{
+			myPrintf("parseFFCS No.1 malloc %d pices of FCSSPformatter* fail.", details->fcsspFormaters1_qty);
+			return NULL;
+		}
+
+		p += safsHeader->headerLength;
+		remaining_len -= safsHeader->headerLength;
+		for(i=0; i<details->fcsspFormaters1_qty ;i++)
+		{
+			(details->fcsspFormaters1)[i] = parseFCSSPformatter(p,remaining_len);
+			if(safsHeader  ==NULL)
+			{
+				myPrintf("parseFFCS No.1 parseFCSSPformatter fail.");
+				return NULL;
+			}
+
+#if defined _itrackerDebug_
+			myPrintf("printFFCSdetails NO.1 FCSSP %lld of %lld:\n", i+1, details->fcsspFormaters1_qty);
+			printFCSSPformatter((details->fcsspFormaters1)[i]);
+#endif
+
+			//to next
+			p += (details->fcsspFormaters1)[i]->formatterLength + (details->fcsspFormaters1)[i]->csspLength ;
+			remaining_len -= (details->fcsspFormaters1)[i]->formatterLength + (details->fcsspFormaters1)[i]->csspLength ;
+		}
+	}
+
+	return details;
 }
 
-
-#if 0
-
-void test_parseBracketheader()
+#include "gwWifi2Uart.h"
+#include "gwWifiCaches.h"
+int8 sendOneFFCSdetails(uint8* etagMacBytes, uint8 etagState, uint8* md5_16_bytes, FFCSdetails* details)
 {
-	//{0,0,295,127,w,r,1,4736} or  {0,0,295,127,w,r,1,4736,0,4088}
+#if defined _itrackerDebug_
+	uint8* functionname = "sendOneFFCSdetails";
+	myPrintf("[%s]:\n",functionname);
+#endif
+	if( details == NULL)
+	{
+#if defined _itrackerDebug_
+		myPrintf("[%s] ffcs is NULL\n",functionname);
+#endif
+		return -1;
+	}
 
-	uint8* header = "{0,0,295,127,w,r,1,4736}ssssss";
-//	uint8* header = "{0,0,295,127,w,r,1,4736,0,4088}xxxx";
+	int8 ret =-1;
+	uint32 package_length =0;
+	uint8* package = NULL;
+	uint16 i;
+	for(i=0;i< details->fcsspFormaters0_qty;i++)
+	{
+		package_length =0;
+		package = get_ETAG_GW_HB_FEEDBACK_STATE_ONUART( etagMacBytes, etagState, md5_16_bytes,
+				(details->fcsspFormaters0)[i]->fcsspPointer, (details->fcsspFormaters0)[i]->formatterLength + (details->fcsspFormaters0)[i]->csspLength, &package_length);
+		appendCache2Uart( etagMacBytes, package,package_length);
+	}
 
-	uint32 length =strlen(header) ;
-	BracketHeader* bHeader = parseBracketHeader(header, &length);
-	printBracketHeader(bHeader);
-	myPrintf("BracketHeader length= %ld\n",length);
-}
+	for(i=0;i< details->fcsspFormaters1_qty;i++)
+	{
+		package_length =0;
+		package = get_ETAG_GW_HB_FEEDBACK_STATE_ONUART( etagMacBytes, etagState, md5_16_bytes,
+				(details->fcsspFormaters1)[i]->fcsspPointer,(details->fcsspFormaters1)[i]->formatterLength + (details->fcsspFormaters1)[i]->csspLength, &package_length);
+		appendCache2Uart( etagMacBytes, package,package_length);
+	}
 
-void test_parseFCSSP_Formatter()
-{
-	uint8* formatter = "[560,zlib1.2]xxxxxx";
-	uint32* formatter_length = strlen(formatter);
-	FCSSP_Formatter* fFormatter = parseFCSSP_Formatter(formatter, &formatter_length);
-
-	printFCSSP_Formatter(fFormatter);
-	myPrintf("FCSSP_Formatter formatter_length= %ld\n",formatter_length);
-}
-
-
-void test_getNumberFCSSP()
-{
-	uint8* fcssps = "[36,zlib1.2]abcdefghijklmnopqrstuvwxyz1234567890[26,zlib1.2]abcdefghijklmnopqrstuvwxyz[10,zlib1.2]1234567890[1,zlib1.2]1[4,zlib1.2]1111";
-	uint32 fcssps_length = strlen(fcssps);
-	uint32 number = 0;
-	FCSSP_Formatter* fFormatter = getNumberFCSSP(fcssps,fcssps_length,  number);
-
-	printFCSSP_Formatter(fFormatter);
-	if(fFormatter)
-		myPrintf("number %ld csspPointer= %s\n",number, fFormatter->csspPointer);
-}
-
-
-
-int main()
-{
-	test_parseBracketheader();
-//
-//	test_parseFCSSP_Formatter();
-
-	test_getNumberFCSSP();
 	return 0;
 }
 
+int8 sendOneFFCS(uint8* etagMacBytes, uint8 etagState, uint8* md5_16_bytes, uint8* ffcs, uint32 ffcs_length)
+{
+	FFCSdetails* details = parseFFCS( ffcs,  ffcs_length);
 
+	int8 send = sendOneFFCSdetails(etagMacBytes, etagState, md5_16_bytes,details);
 
+	freeFFCSdetails(details);
+	return send;
+}
+
+/*
+ * etagBle里调用，解析并解压缩FCSSP得到自明的SSP分片数据(带有SSPheader)
+ * 将FCSSP [560,zlib1.2]byte0~byte559中的byte0~byte559解压缩到SSPbuffer里，长度返回为*SSPbuffer_len。
+ */
+int8 uncompressFCSSPtoSSP(uint8* fcssp, uint32 fcssp_length, uint8* SSPbuffer, uint32 *SSPbuffer_len)
+{
+	FCSSPformatter* formatter = parseFCSSPformatter( fcssp, fcssp_length);
+	if(formatter == NULL)
+	{
+		return -1;
+	}
+
+	memset(SSPbuffer,0,*SSPbuffer_len);
+	int result = uncompress (SSPbuffer, SSPbuffer_len, formatter->csspPointer, formatter->csspLength);
+#if defined _itrackerDebug_
+	myPrintf("uncompress result = %ld, uncompress into size of ssplen= %ld\n",result, *SSPbuffer_len );
+	myPrintf("uncompress ssp+17 = %d\n", *(SSPbuffer + 17));
+	myPrintf("uncompress into strlen of %lld, into = %s\n", strlen(SSPbuffer),SSPbuffer);
 #endif
+	freeFCSSPformatter(formatter);
+	return result;
+}
+
+
+/* etagBle里调用
+ * 解析SSP得到SSPheader
+ * slice数据在ssp + SSPheader->headerLength，长度为 SSPheader->sliceLen。
+ */
+SSPheader* parseSSP(uint8* ssp, uint32 ssp_length)
+{
+	return  (SSPheader*)parseBracketHeader( ssp,  ssp_length);
+}

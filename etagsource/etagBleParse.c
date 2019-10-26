@@ -6,8 +6,43 @@
  */
 
 #include "etagBleParse.h"
+#include "unpackPixeldata.h"
+#include "etagBleDriver.h"
 
-void etagDispseEtagState(uint8 etagState)
+#include "include/zlib.h"
+
+/*
+ * 解析收到新点阵数据FCSSP，并且解压缩后保存进flash
+ */
+void dispseNewPixeldata(uint8* fcssp, uint32 FCSSP_length)
+{
+	uint8 SSPbuffer[SSP_LENGTH_MAX];//解压缩看看是否成功！！
+	uint32 SSPbuffer_len = SSP_LENGTH_MAX;
+
+	int8 ret = uncompressFCSSPtoSSP( fcssp,  FCSSP_length,  SSPbuffer, &SSPbuffer_len);
+
+	if( ret != Z_OK)
+	{
+		myPrintf("[dispseNewPixeldata] uncompressFCSSPtoSSP fail ret=%d\n",ret);
+		return;
+	}
+	SSPheader* sspHeader = parseSSP( SSPbuffer,  SSPbuffer_len);
+
+	myPrintf("[dispseNewPixeldata] slicePixeldata len=%lld, slicePixeldata=%s\n", strlen(SSPbuffer+sspHeader->headerLength), SSPbuffer+sspHeader->headerLength);
+
+	if( CHAR_COLOR_BLACK == sspHeader->forecolor )
+	{
+		saveSector(SECTOR_BASE_for_BLACK, sspHeader->number, SSPbuffer + sspHeader->headerLength, sspHeader->sliceLen);
+	}
+	else if( CHAR_COLOR_RED == sspHeader->forecolor )
+	{
+		saveSector(SECTOR_BASE_for_RED, sspHeader->number, SSPbuffer + sspHeader->headerLength, sspHeader->sliceLen);
+	}
+
+	freeSSPheader(sspHeader);
+}
+
+void etagDispseEtagState(uint8 etagState,uint8* md5_16_bytes,uint8* fcssp, uint32 FCSSP_length)
 {
 	switch(etagState)
 	{
@@ -64,6 +99,11 @@ void etagDispseEtagState(uint8 etagState)
 	break;
 	case Etag_State_Online_ProductBound_New_Pixeldata:// 0x42// 有了新图案
 	{
+		myPrintf("[etagDispseEtagState] Etag_State_Online_ProductBound_New_Pixeldata\n");
+
+
+		dispseNewPixeldata( fcssp,  FCSSP_length);
+
 		//TODO 删除TIMER: TAG_RETURN_RATIO*TAG_INTERVAL_at_HALFMINUTE*30秒钟仍未收到云服务器返回数据包则置为Etag_State_Offline，在屏幕上增加"警示未接入网络"的标记)，TAG_RETURN_RATIO暂定为10；
 
 	}
@@ -99,8 +139,9 @@ void etagDispseEtagState(uint8 etagState)
 
 
 
-void slaveParseBlePackage(uint8* package,uint16 package_length)
+void slaveParseBlePackage(uint8* package,uint32 package_length)
 {
+	myPrintf("[slaveParseBlePackage] package_length=%lld\n", package_length);
 	if(NULL == package || package_length < CMD_LENGTH)
 	{
 		return ;
@@ -108,14 +149,29 @@ void slaveParseBlePackage(uint8* package,uint16 package_length)
 
 	switch(*package)
 	{
-	case CMD_TAG_GW_HB_FEEDBACK://心跳包
+	case CMD_TAG_ETAG_GW_HB_FEEDBACK_STATE://心跳包
 	{
-		if(package_length < TAG_GW_HB_FEEDBACK_ONBLE_HEADER_LENGTH)
+		if(package_length < TAG_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_HEADER_LENGTH)
 		{
 			return;
 		}
 
-//		etagDispseEtagState(etagState);
+		uint8 etagState = *(package + CMD_LENGTH + SUBCMD_LENGTH );
+		uint8* md5_16_bytes = NULL;
+		uint8* fcssp = NULL;
+		uint32 FCSSP_length = 0;
+
+		if(package_length > TAG_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_HEADER_LENGTH + MD5_16_BYTE_LENGTH)
+		{
+			md5_16_bytes = package + TAG_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_HEADER_LENGTH;
+
+			//hex 88,77,66,55,44,33,22,11 right!
+			printCharArray("[slaveParseBlePackage] md5_16_bytes= ",md5_16_bytes ,8 );
+
+			fcssp = package + TAG_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_HEADER_LENGTH+ MD5_16_BYTE_LENGTH;
+			FCSSP_length =package_length- TAG_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_HEADER_LENGTH - MD5_16_BYTE_LENGTH;
+		}
+		etagDispseEtagState(etagState,md5_16_bytes ,fcssp, FCSSP_length);
 	}
 		break;
 	case CMD_GW_NEW_SHORTPW://网关发放新密码

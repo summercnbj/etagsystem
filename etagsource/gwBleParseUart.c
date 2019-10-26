@@ -3,7 +3,7 @@
 #include "gwBleParseUart.h"
 
 #include "gwBleScanAndConnect.h"
-
+#include "gwWifiDriver.h"
 
 
 //~~~~~~~~~~~~~~~~~见十一~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -46,9 +46,9 @@ void onBoot_check_NEW_SHORTPW(uint8* shortPW)
 }
 
 
-void bleParseUartPackage(uint8* package,uint16 package_length)
+void bleParseUartPackage(uint8* package,uint32 package_length)
 {
-	myPrintf("parseUartPackage package_length= %d\n",package_length);
+	myPrintf("bleParseUartPackage package_length= %lld, cmd=0x%x\n",package_length, *package);
 	if(NULL == package || package_length < CMD_LENGTH)
 	{
 		return ;
@@ -56,9 +56,16 @@ void bleParseUartPackage(uint8* package,uint16 package_length)
 
 	switch(*package)
 	{
-	case CMD_GW_HB_FEEDBACK:
+	case CMD_TAG_ETAG_GW_HB_FEEDBACK_STATE:
 	{
+		if(package_length > MAC_BYTE_LENGTH)
+		{//valid
+			//forward to etag
 
+			uint8* package2etag = get_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_from_ONUART( package, package_length);
+			masterSendPackage( package2etag, package_length - MAC_BYTE_LENGTH, getShortPW(),  package + CMD_LENGTH);
+			myFree(package2etag);
+		}
 	}
 		break;
 	case CMD_GW_NEW_SHORTPW:

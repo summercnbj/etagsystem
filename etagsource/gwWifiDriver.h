@@ -14,6 +14,11 @@
 #include "gwStateMachine.h"
 #include "nvramApi.h"
 
+
+#define GW_BLE_QTY 3
+
+
+
 extern void addFlowNo();
 extern uint16 c;
 //判断接受到的receiveFlowNo是否比当前的flowNo小。若小则无效timeout.
@@ -32,6 +37,11 @@ extern void wifiResetFactory();
 
 //macBytes with length of MAC_BYTE_LENGTH=6
 extern uint8* formUuidBytes(uint8* macBytes);
+
+
+
+extern void wifiSend2Uart(uint8* data, uint32 length);
+
 
 
 #endif /* GWWIFIDRIVER_H_ */

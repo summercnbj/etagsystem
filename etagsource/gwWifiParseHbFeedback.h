@@ -16,7 +16,7 @@
 #include "etagStateMachine.h"
 
 
-#define GW_BLE_QTY 3
+
 
 extern void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedbackPackage_length, uint8* myMacBytes);
 

@@ -102,21 +102,12 @@ uint8* get_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_from_ONUART(uint8* package_ONUART,uin
 	return package2etag;
 }
 
+//发送单条数据，长度不超过20字节
 void masterSendPackage(uint8* package_ONBLE,uint32 package_length_ONBLE, uint8* shortPW, uint8* peripheralMacBytes)
 {
 	myPrintf("[masterSendPackage] package_length_ONBLE=%lld\n",package_length_ONBLE);
 
-#if defined TESTING_SUMMER
 
-#include "etagBleParse.h"
-	slaveParseBlePackage( package_ONBLE, package_length_ONBLE);
-#endif
-
-
-
-
-
-	//TODO 分包协议 并添加到缓存里：要同时记录peripheralMacBytes,然后过滤该mac去连接发送。
 
 
 

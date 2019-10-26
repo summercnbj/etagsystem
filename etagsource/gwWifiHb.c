@@ -145,6 +145,27 @@ uint8* getGwHbPackage(uint16 *package_length)
 }
 
 
+/* TODO
+ * API:
+ * timer to do gwhb();
+ * 要确保该timer一直生存。
+ *
+ */
+void gwhb()
+{
+	uint16 package_length =0;
+	uint8* hb = getGwHbPackage(&package_length);
+
+#if defined TESTING_SUMMER
+	parseHb2Db( getShortPW(), hb, package_length);
+#endif
+
+	myFree(hb);
+}
+
+
+
+
 /*~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 
 void testGwHb()

@@ -8,6 +8,9 @@
 #include "gwWifiHb.h"
 #include "serverParseHb.h"
 
+
+
+
 void testGwHb_andParse()
 {
 	uint8* shortPW = "123456";
@@ -40,31 +43,7 @@ void testGwHb_andParse()
 
 	myPrintf("package_length = %d\n", package_length);
 
-
-
-	ParseHbResult* hb = parseHb( shortPW,  package, package_length);
-	myFree(package);
-	if(hb == NULL)
-	{//parse lose
-		return;
-	}
-
-	if(HB_TYPE_from_GW == hb->type)
-	{
-		if( hb->length >= sizeof(GwHbPackage))
-		{
-			GwHbPackage* gwHbPackage = hb->package;
-			printGwHbPackage(gwHbPackage);
-		}
-	}
-	else if(HB_TYPE_from_ETAG == hb->type)
-	{
-		if( hb->length >= sizeof(EtagHbPackage))
-		{
-			EtagHbPackage* etagHbPackage = hb->package;
-//			printGwHbPackage_struct(gwHbPackage);
-		}
-	}
+	parseHb2Db( shortPW,  package,  package_length);
 
 }
 

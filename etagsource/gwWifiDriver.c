@@ -111,9 +111,6 @@ uint8* formUuidBytes(uint8* macBytes)
 
 void wifiSend2Uart(uint8* data, uint32 length)
 {
-	//TODO driver
-
-
 	myPrintf("[wifiSend2Uart] length=%lld\n",length);
 
 #if defined TESTING_SUMMER
@@ -123,4 +120,30 @@ void wifiSend2Uart(uint8* data, uint32 length)
 #endif
 
 
+	//TODO driver
+
+
+
+
 }
+
+
+//http flow up flow down
+void wifiSend2Cloud(uint8* data, uint32 length)
+{
+	myPrintf("[wifiSend2Cloud] length=%lld\n",length);
+
+#if defined TESTING_SUMMER
+	//only for test
+
+
+#endif
+
+	//TODO HTTP FLOW UP FLOW DOWN
+
+
+
+
+}
+
+

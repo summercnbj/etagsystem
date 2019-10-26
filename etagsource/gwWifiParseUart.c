@@ -29,12 +29,14 @@ void wifiParseUart(uint8* package, uint16 package_length )
 				&hbPackage_length);
 		myPrintf("wifiParseUart hbPackage_length= %d\n" , hbPackage_length);
 		myPrintf("wifiParseUart flowNo= %d\n" , getFlowNo());
-		//TODO 加入sending cache缓存：发送往云服务器，可以做流控
+
+
+		appendCache2Cloud(hbPackage, hbPackage_length);
+
 
 #if TESTING_SUMMER //testing
 #include "serverParseHb.h"
-		struct parseHbResult_struct* result = parseHb( getShortPW(), hbPackage, hbPackage_length);
-		printParseHbResult(result);
+		parseHb2Db( getShortPW(), hbPackage, hbPackage_length);
 #endif
 
 		//发送完要myFree

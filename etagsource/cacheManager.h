@@ -12,10 +12,29 @@
 #include "cTools.h"
 #include "nvramApi.h"
 
+#define REMEMBER_MAC 1 //用于gwBle master:gwBleMasterCache.c
 
+#define MEDIA_AIR_FROM_WIFI_TO_CLOUD  1
+#define MEDIA_UART_FROM_WIFI_TO_GWBLE  2
+#define MEDIA_BLE_FROM_GWBLE_TO_ETAGBLE 3
+
+
+#define CACHE_SIZE 50//使用数组或者链表都可以
 struct myCache_struct
 {
+#if defined REMEMBER_MAC
+uint8* targetMacBytes;//长度6bytes。仅仅用于gwBle master
+#endif
+
+uint8 media;//TARGET_TO_SEND_XXX
+
+
+uint8* package[CACHE_SIZE];
+uint32 package_length[CACHE_SIZE];
+
 	//TODO 请自行设计FIFO缓存结构.多线程要做线程锁。
+
+
 
 };
 typedef struct myCache_struct MyFIFOCache;

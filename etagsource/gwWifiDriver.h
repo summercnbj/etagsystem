@@ -43,5 +43,7 @@ extern uint8* formUuidBytes(uint8* macBytes);
 extern void wifiSend2Uart(uint8* data, uint32 length);
 
 
+//http flow up flow down
+extern void wifiSend2Cloud(uint8* data, uint32 length);
 
 #endif /* GWWIFIDRIVER_H_ */

@@ -16,6 +16,8 @@
 #include "nvramApi.h"
 #include "gwWifiDriver.h"
 
+extern void initCaches();
+
 extern int8 appendCache2AllUarts( uint8* chararray, uint32 length);
 
 extern int8 appendCache2Uart( uint8* etagMacBytes, uint8* chararray, uint32 length);

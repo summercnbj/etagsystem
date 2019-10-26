@@ -15,6 +15,20 @@ MyFIFOCache cache2Uart_C;
 
 MyFIFOCache cache2Cloud;//用来做流控
 
+
+
+void initCaches()
+{
+	cache2Cloud.media = MEDIA_AIR_FROM_WIFI_TO_CLOUD;
+
+	cache2Uart_A.media = MEDIA_UART_FROM_WIFI_TO_GWBLE;
+	cache2Uart_B.media = MEDIA_UART_FROM_WIFI_TO_GWBLE;
+	cache2Uart_C.media = MEDIA_UART_FROM_WIFI_TO_GWBLE;
+}
+
+
+
+
 int8 appendCache2Uart_A( uint8* chararray, uint32 length)
 {
 	return appendIntoCache( &cache2Uart_A,  chararray,  length);

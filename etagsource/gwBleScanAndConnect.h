@@ -29,8 +29,7 @@ extern void masterParseBleAdvPackage(uint8* package,uint16 package_length, uint8
 
 extern uint8* get_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_from_ONUART(uint8* package_ONUART,uint32 package_length_ONUART);
 
-//添加到master sendingcache
-extern void masterSendPackage(uint8* package,uint32 package_length, uint8* shortPW, uint8* peripheralMacBytes);
-
+//发送单条数据，长度不超过20字节
+extern void masterSendPackage(uint8* package_ONBLE,uint32 package_length_ONBLE, uint8* shortPW, uint8* peripheralMacBytes);
 
 #endif /* GWBLESCANANDCONNECT_H_ */

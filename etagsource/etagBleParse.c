@@ -142,6 +142,7 @@ void etagDispseEtagState(uint8 etagState,uint8* md5_16_bytes,uint8* fcssp, uint3
 void slaveParseBlePackage(uint8* package,uint32 package_length)
 {
 	myPrintf("[slaveParseBlePackage] package_length=%lld\n", package_length);
+
 	if(NULL == package || package_length < CMD_LENGTH)
 	{
 		return ;
@@ -151,6 +152,7 @@ void slaveParseBlePackage(uint8* package,uint32 package_length)
 	{
 	case CMD_TAG_ETAG_GW_HB_FEEDBACK_STATE://心跳包
 	{
+
 		if(package_length < TAG_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_HEADER_LENGTH)
 		{
 			return;

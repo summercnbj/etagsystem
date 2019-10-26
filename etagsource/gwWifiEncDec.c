@@ -5,6 +5,8 @@
  *      Author: summer
  */
 #include "gwWifiEncDec.h"
+#include "itrackerBlowFish.h"
+
 
 /**
  * 给心跳包hbCore做blowfish加密

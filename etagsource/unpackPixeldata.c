@@ -7,7 +7,7 @@
 
 
 #include "unpackPixeldata.h"
-
+#include "include/zlib.h"
 
 //~~~~~~~~~~~~~~~~~~~~~~~解析所有的{header}:SAP header or SSP header~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -352,6 +352,7 @@ void printFFCSdetails(FFCSdetails * details)
 	printETAGabstract(details->etagAbstract );
 
 #include "etagBleParse.h"
+#include "include/zlib.h"
 	uint8 SSPbuffer[SSP_LENGTH_MAX];//解压缩看看是否成功！！
 	uint32 SSPbuffer_len;
 
@@ -377,7 +378,7 @@ void printFFCSdetails(FFCSdetails * details)
 		//解压CSSP到SSP 并打印slicePixeldata
 		SSPbuffer_len = SSP_LENGTH_MAX;
 		memset(SSPbuffer,0,SSPbuffer_len);
-		int result = uncompress (SSPbuffer, &SSPbuffer_len, (details->fcsspFormaters1)[i]->csspPointer, (details->fcsspFormaters1)[i]->csspLength);
+		int result = uncompress(SSPbuffer, &SSPbuffer_len, (details->fcsspFormaters1)[i]->csspPointer, (details->fcsspFormaters1)[i]->csspLength);
 		myPrintf("result=%d, SSPbuffer_len=%lld, SSPbuffer=%s\n",result, SSPbuffer_len, SSPbuffer);
 
 		SSPheader* sspHeader = parseSSP( SSPbuffer,  SSPbuffer_len);
@@ -794,7 +795,7 @@ int8 uncompressFCSSPtoSSP(uint8* fcssp, uint32 fcssp_length, uint8* SSPbuffer, u
 	}
 
 	memset(SSPbuffer,0,*SSPbuffer_len);
-	int result = uncompress (SSPbuffer, SSPbuffer_len, formatter->csspPointer, formatter->csspLength);
+	int result = uncompress(SSPbuffer, SSPbuffer_len, formatter->csspPointer, formatter->csspLength);
 #if defined _itrackerDebug_
 	myPrintf("uncompress result = %ld, uncompress into size of ssplen= %ld\n",result, *SSPbuffer_len );
 	myPrintf("uncompress ssp+17 = %d\n", *(SSPbuffer + 17));

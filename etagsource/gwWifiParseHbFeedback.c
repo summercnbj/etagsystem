@@ -5,8 +5,10 @@
  *      Author: summer
  */
 #include "gwWifiParseHbFeedback.h"
-
+#include "unpackPixeldata.h"
 #include "gwWifiCaches.h"
+#include "itrackerBlowFish.h"
+
 
 //~~~~~~~~~~~~~~~~~~~~见十~~~~~~~~~~~~~~~~~~~
 

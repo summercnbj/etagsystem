@@ -6,7 +6,14 @@
  */
 
 #include "gwWifiParseUart.h"
+#include "gwWifiCaches.h"
+#include "gwWifiDriver.h"
+#include "gwWifiEtagHb.h"
 
+
+#if TESTING_SUMMER //testing
+#include "serverParseHb.h"
+#endif
 
 
 
@@ -35,7 +42,6 @@ void wifiParseUart(uint8* package, uint16 package_length )
 
 
 #if TESTING_SUMMER //testing
-#include "serverParseHb.h"
 		parseHb2Db( getShortPW(), hbPackage, hbPackage_length);
 #endif
 

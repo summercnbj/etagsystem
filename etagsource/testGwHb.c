@@ -7,7 +7,7 @@
 
 #include "gwWifiHb.h"
 #include "serverParseHb.h"
-
+#include "gwWifiDriver.h"
 
 
 
@@ -39,6 +39,7 @@ void testGwHb_andParse()
 	copyStringIntoBufferWithLimit(hardwareVersion,getGwHardwareVersion(),HARDWAREVERSION_LENGTH_MAX+1);
 
 	uint16 package_length =0;
+	extern uint8* getGwHbPackage(uint16 *package_length);
 	uint8* package = getGwHbPackage( &package_length);
 
 	myPrintf("package_length = %d\n", package_length);

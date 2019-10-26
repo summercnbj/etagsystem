@@ -20,7 +20,7 @@
 
 
 extern void addFlowNo();
-extern uint16 c;
+extern uint16 getFlowNo();
 //判断接受到的receiveFlowNo是否比当前的flowNo小。若小则无效timeout.
 extern itr_bool flowNoValid(uint16 receiveFlowNo);
 extern void setGwBattPercentage(uint8 batt);

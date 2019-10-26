@@ -7,7 +7,7 @@
 #include "itracker88Platform.h"
 #include "cTools.h"
 #include "commands.h"
-
+#include "itrackerCharArray.h"
 
 
 //分成2bytes。   "87a.a66"-->87,0; "  87.6a6"-->87,6;  " 287.6 9"-->31,6;  因为287超过了256

@@ -7,6 +7,8 @@
 
 
 #include "nvramApi.h"
+#include "itrackerCharArray.h"
+
 
 //读ID。长度存入data_length
 uint8* readNvramId(uint16 id, uint16* data_length)

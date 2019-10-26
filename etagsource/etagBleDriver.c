@@ -27,7 +27,7 @@ void etagResetFactory()
 /**
  * 保存大数据。非NVRAMID。
  * @sector_base从哪个扇区开始存储
- * @serial 序号
+ * @serial 序号(数据分片里的序号)
  * @chararray 要存的数据，长度为length
  *
  */
@@ -41,4 +41,8 @@ int8 saveSector( uint16 sector_base, uint16 serial, uint8* chararray, uint32 len
 
 	//TODO  保存到sector_base+serial扇区里
 
+
+
+
+	return 0;
 }

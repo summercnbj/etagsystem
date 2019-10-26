@@ -62,7 +62,7 @@ void bleParseUartPackage(uint8* package,uint32 package_length)
 			//forward to etag
 
 			uint8* package2etag = get_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_from_ONUART( package, package_length);
-			splitingToSend( package2etag, package_length - MAC_BYTE_LENGTH, package + CMD_LENGTH);
+			splitingToSend(  package + CMD_LENGTH, package2etag, package_length - MAC_BYTE_LENGTH);
 
 			myFree(package2etag);
 		}

@@ -8,7 +8,7 @@
 #ifndef TESTZLIBAPI_H_
 #define TESTZLIBAPI_H_
 #include "include/zlib.h"
-
+#include "itracker88Platform.h"
 
 
 /*

@@ -213,6 +213,8 @@ void test_parseBracketheader()
 //	uint8* header = "{0,0,295,127,w,r,1,4736,0,4088}xxxx";
 
 	uint32 length =strlen(header) ;
+
+	extern uint8* parseBracketHeader(uint8* header, uint32 header_length);
 	BracketHeader* bHeader = parseBracketHeader(header, &length);
 	printBracketHeader(bHeader);
 	myPrintf("BracketHeader length= %ld\n",length);

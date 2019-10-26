@@ -31,4 +31,5 @@
 extern uint8* getGwWifiEtagHbPackage(uint8* shortPW, uint16 flowNo, uint8* wifiMacBytes,uint8 gwBattPercentage, uint8* rootMacBytes,uint8* etagHbOnUart_body,
 		uint16 *package_length);
 
+
 #endif /* GWWIFIETAGHB_H_ */

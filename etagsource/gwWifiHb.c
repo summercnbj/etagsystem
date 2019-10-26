@@ -8,7 +8,7 @@
 #include "gwWifiHb.h"
 
 #include "itrackerBlowFish.h"
-
+#include "gwWifiDriver.h"
 
 
 /** 获得已经加密组装了流水号的GW心跳包，准备发送到云服务器
@@ -157,6 +157,8 @@ void gwhb()
 	uint8* hb = getGwHbPackage(&package_length);
 
 #if defined TESTING_SUMMER
+#include "serverParseHb.h"
+#include "gwWifiDriver.h"
 	parseHb2Db( getShortPW(), hb, package_length);
 #endif
 
@@ -167,7 +169,7 @@ void gwhb()
 
 
 /*~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
-
+#include "gwWifiDriver.h"
 void testGwHb()
 {
 	uint8 macBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};

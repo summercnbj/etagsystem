@@ -8,8 +8,7 @@
 #include "gwWifiHb.h"
 
 #include "itrackerBlowFish.h"
-#include "gwWifiDriver.h"
-
+#include "gwWifiCaches.h"
 
 /** 获得已经加密组装了流水号的GW心跳包，准备发送到云服务器
  * @uuid 长度为UUID_BYTE_LENGTH=42
@@ -140,13 +139,13 @@ uint8* formGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* wifiMacBytes,uint8 
 uint8* getGwHbPackage(uint16 *package_length)
 {
 	addFlowNo();
-	return formGwHbPackage(getShortPW(), getFlowNo(), getWifiMacBytes(),getGwBattPercentage(),getRootMacBytes(),
+	return formGwHbPackage(getWifiShortPW(), getFlowNo(), getWifiMacBytes(),getGwBattPercentage(),getRootMacBytes(),
 			0, getGwProductModel(), getGwSoftwareVersion(), getGwHardwareVersion(), package_length);
 }
 
 
-/* TODO
- * API:
+/* TODO TIMER
+ * API:  心跳包
  * timer to do gwhb();
  * 要确保该timer一直生存。
  *
@@ -156,11 +155,7 @@ void gwhb()
 	uint16 package_length =0;
 	uint8* hb = getGwHbPackage(&package_length);
 
-#if defined TESTING_SUMMER
-#include "serverParseHb.h"
-#include "gwWifiDriver.h"
-	parseHb2Db( getShortPW(), hb, package_length);
-#endif
+	appendCache2Cloud(hb, package_length);
 
 	myFree(hb);
 }

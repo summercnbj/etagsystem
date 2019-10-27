@@ -7,7 +7,7 @@
 
 #include "gwWifiDriver.h"
 
-
+//~~~~~~~~~~~~~~~~内存变量~~~~~~~~~~~~~~~~~~~~~~~
 static uint16 flowNo =1;
 
 void addFlowNo()
@@ -29,7 +29,7 @@ itr_bool flowNoValid(uint16 receiveFlowNo)
 }
 
 static uint8 gwBattPercentage =100;
-static uint8 shortPW[SHORTPW_LENGTH];
+static uint8 wifiShortPW[SHORTPW_LENGTH];
 static uint8 wifiMacBytes[MAC_BYTE_LENGTH];
 static uint8 rootMacBytes[MAC_BYTE_LENGTH];
 void setGwBattPercentage(uint8 batt)
@@ -40,9 +40,9 @@ uint8 getGwBattPercentage()
 {
 	return gwBattPercentage;
 }
-uint8* getShortPW()
+uint8* getWifiShortPW()
 {
-	return shortPW;
+	return wifiShortPW;
 }
 uint8* getWifiMacBytes()
 {
@@ -68,7 +68,7 @@ uint8* getGwHardwareVersion()
 {
 	return gwHardwareVersion;
 }
-
+//~~~~~~~~~~~~~~~~上面是内存变量~~~~~~~~~~~~~~~~~~~~~~~
 
 
 void wifiRebooting()
@@ -113,11 +113,7 @@ void wifiSend2Uart(uint8* data, uint32 length)
 {
 	myPrintf("[wifiSend2Uart] length=%lld\n",length);
 
-#if defined TESTING_SUMMER
-#include "gwBleParseUart.h"
-	//only for test
-	bleParseUartPackage(data,length);
-#endif
+
 
 
 	//TODO driver
@@ -133,11 +129,6 @@ void wifiSend2Cloud(uint8* data, uint32 length)
 {
 	myPrintf("[wifiSend2Cloud] length=%lld\n",length);
 
-#if defined TESTING_SUMMER
-	//only for test
-
-
-#endif
 
 	//TODO HTTP FLOW UP FLOW DOWN
 

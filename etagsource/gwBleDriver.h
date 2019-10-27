@@ -18,10 +18,21 @@
 #include "bleDriver.h"
 
 
+//~~~~~~~~~~~~~~~~内存变量~~~~~~~~~~~~~~~~~~~~~~~
+extern uint8* getGwBleShortPW();
+extern uint8* getNewGwBleShortPW();
 
-extern void sendUart(uint8* data,uint16 data_length);
+//~~~~~~~~~~~~~~~~上面是内存变量~~~~~~~~~~~~~~~~~~~~~~~
 
-//TODO 被驱动调用：从uart协议里解出的data
-extern void wifiParseUart(uint8* data,uint16 data_length);
+
+
+
+
+
+
+
+
+extern void bleSend2Uart(uint8* data,uint16 data_length);
+
 
 #endif /* GWBLEDRIVER_H_ */

@@ -6,8 +6,14 @@
  */
 
 #include "gwBleScanAndConnect.h"
+#include "gwBleMasterCache.h"
 
-
+/*
+ *
+ * BLESCAN_TYPE_SENDNEWSHORTPW=1  停止解析广告中的心跳包行为，扫描到任意mac的etag就连接发送密码
+ * BLESCAN_TYPE_HB=2 扫描到任意mac的etag都解析广告中的心跳包；发现缓存里指定mac的etag就发送缓存里的数据。
+ *
+ */
 
 uint8 bleScan_type = BLESCAN_TYPE_HB;
 
@@ -20,18 +26,104 @@ uint8 get_bleScan_type( )
 	return bleScan_type;
 }
 
-//十一，网关里的蓝牙通知价签新密码(GW_NEW_SHORTPW_ONBLE)：从网关上的蓝牙到价签蓝牙
-#include "gwWifi2Uart.h"
-uint8* getGW_NEW_SHORTPW_ONBLE(uint8* newShortPW)
+#define SENDING_BUFFER_LENGTH 22
+static uint8 sendingBuffer[SENDING_BUFFER_LENGTH];//固定长度的buffer
+
+/* API
+ * 连接当前的蓝牙slaveMacBytes
+ */
+int8 connectSlave(uint8 *slaveMacBytes)
 {
-	return get_GW_NEW_SHORTPW_ONUART(newShortPW);//两者相同
+	//TODO
+
+
+	return 0;
+}
+
+int8 disconnectSlave()
+{
+	//TODO  断开当前连接
+
+
+	return 0;
+}
+
+/* API
+ * 被  UUID_NEWSHORTPW 发现回调
+ */
+int8 sendingShortPW()
+{
+	//TODO 向指定UUID_NEWSHORTPW发送sendingBuffer[SENDING_BUFFER_LENGTH]
+
+
+
+
+	int8 ret = 0;
+
+
+	disconnectSlave();
+	return ret;
 }
 
 
+/* API
+ * 被  UUID_cachedata 发现回调
+ * 发送来自gwBleMasterCache-->bleSplittingEncDec的数据
+ */
+int8 sendingSplitting()
+{
+	//TODO 向指定UUID_cachedata发送sendingBuffer[SENDING_BUFFER_LENGTH]
+
+
+
+
+
+	int8 ret = 0;
+
+
+	if( 0 == ret)
+	{
+		{
+			//看有没有下一条数据。若有，继续发masterSendPackageToSlave(next)； 若没有断开连接。
+
+
+
+		}
+	}
+
+	return ret;
+}
+
+//发送单条数据，长度不超过20字节.写入 sendingBuffer[SENDING_BUFFER_LENGTH]
+void masterSendPackageToSlave(uint8* package_ONBLE,uint32 package_length_ONBLE)
+{
+	//TODO 向指定UUID写入数据
+	if( package_length_ONBLE < SENDING_BUFFER_LENGTH)
+	{
+		copyCharArrayIntoBuffer(package_ONBLE,package_length_ONBLE,sendingBuffer);
+	}
+}
+
+
+
+
+
+
+
+
+
+//十一，网关里的蓝牙通知价签新密码(GW_NEW_SHORTPW_ONBLE)：从网关上的蓝牙到价签蓝牙
+
+
 #include "gwBleDriver.h"
+
+
+
+
+
 //三，价签心跳包(ETAG_HB)：从价签蓝牙到网关上的蓝牙  2.使用蓝牙广播
 //通过广播读取心跳包
-void masterParseBleAdvPackage(uint8* package,uint16 package_length, uint8* shortPW, uint8* peripheralMacBytes)
+void masterParseBleAdvPackage(uint8* package,uint16 package_length, uint8* shortPW, uint8* slaveMacBytes)
 {
 	if(NULL == package || package_length < TAG_HB_ADV_LENGTH)
 	{
@@ -50,6 +142,33 @@ void masterParseBleAdvPackage(uint8* package,uint16 package_length, uint8* short
 		myPrintf("masterParseBleAdvPackage error vendormark\n");
 		return;
 	}
+
+	//确认了是etag
+
+	if(BLESCAN_TYPE_SENDNEWSHORTPW == bleScan_type)
+	{
+		//连接该etag，并发送新密码
+		//等待连接成功回调，再discoverService,在得到uuid回调中开始发送数据。
+		connectSlave(slaveMacBytes);
+
+
+		return;//停止解析广告中的心跳包行为
+	}
+	else if(BLESCAN_TYPE_HB == bleScan_type)
+	{
+		//扫描到任意mac的etag都解析广告中的心跳包；发现缓存里指定mac的etag就发送缓存里的数据。
+
+		int8 send = sendCache2Slave( slaveMacBytes );
+		if(send<0)
+		{
+			uint8 machexstr[13];
+			memset(machexstr,0,13);
+			MacSixIntoMac12HexChar( slaveMacBytes ,6, machexstr, 13 );
+			myPrintf("%s no data to send\n", machexstr );
+		}
+	}
+
+
 	switch(*(package + ADV_BYTEPOSITION_CMD))
 	{
 	case CMD_TAG_GW_HB:
@@ -77,9 +196,9 @@ void masterParseBleAdvPackage(uint8* package,uint16 package_length, uint8* short
 			return;
 		}
 		copyCharArrayIntoBuffer( offsetData, TAG_HB_LENGTH,etagHb2Uart);
-		copyCharArrayIntoBuffer( peripheralMacBytes,MAC_BYTE_LENGTH,etagHb2Uart + TAG_HB_LENGTH);
+		copyCharArrayIntoBuffer( slaveMacBytes,MAC_BYTE_LENGTH,etagHb2Uart + TAG_HB_LENGTH);
 
-		sendUart(etagHb2Uart,TAG_HB_ONUART_LENGTH);
+		bleSend2Uart(etagHb2Uart,TAG_HB_ONUART_LENGTH);
 
 		myFree(etagHb2Uart);
 	}
@@ -102,17 +221,11 @@ uint8* get_ETAG_GW_HB_FEEDBACK_STATE_ONBLE_from_ONUART(uint8* package_ONUART,uin
 	return package2etag;
 }
 
-//发送单条数据，长度不超过20字节
-void masterSendPackage(uint8* package_ONBLE,uint32 package_length_ONBLE, uint8* shortPW, uint8* peripheralMacBytes)
-{
-	myPrintf("[masterSendPackage] package_length_ONBLE=%lld\n",package_length_ONBLE);
 
 
 
 
 
-
-}
 
 
 

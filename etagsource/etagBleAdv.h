@@ -21,4 +21,14 @@
 extern void genAdvIntoBuffer(uint8* shortPW,uint8* productModel, uint8*softwareVersion,uint8* hardwareVersion,
 		uint8 battPercentage, uint8* md5_16_bytes, uint8* buffer, uint16 buffer_length);
 
+
+/* TODO TIMER
+ * API:  心跳包
+ * timer to do gwhb();
+ * 要确保该timer一直生存。
+ *
+ */
+extern void etagHb();
+
+
 #endif /* ETAGBLEADV_H_ */

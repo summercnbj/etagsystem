@@ -7,7 +7,11 @@
 
 
 #include "etagBleAdv.h"
+#include "etagBleDriver.h"
 
+#if TESTING_SUMMER  //testing
+#include "gwBleScanAndConnect.h"
+#endif
 
 //生成TAG_HB 原始数据21字节
 uint8* getOffsetDataCore(uint8* productModel, uint8*softwareVersion,uint8* hardwareVersion,uint8 battPercentage, uint8* md5_16_bytes )
@@ -74,5 +78,29 @@ void genAdvIntoBuffer(uint8* shortPW,uint8* productModel, uint8*softwareVersion,
 	copyCharArrayIntoBuffer(dataCore, TAG_HB_LENGTH, buffer+ADV_BYTEPOSITION_CMD + CMD_LENGTH);
 	myFree(dataCore);
 }
+
+
+
+/* TODO TIMER
+ * API:  心跳包
+ * timer to do gwhb();
+ * 要确保该timer一直生存。
+ *
+ */
+void etagHb()
+{
+	uint8 buffer[TAG_HB_ADV_LENGTH];
+	uint16 buffer_length =TAG_HB_ADV_LENGTH;
+
+	genAdvIntoBuffer( getEtagShortPW(), getEtagProductModel(), getEtagSoftwareVersion(), getEtagHardwareVersion(),
+			 getEtagBattPercentage(),  getEtagMd5_16_bytes(),  buffer,  buffer_length);
+
+
+
+#if TESTING_SUMMER
+	masterParseBleAdvPackage( buffer, TAG_HB_ADV_LENGTH,  getEtagShortPW(), getEtagMacBytes());//gwBle master代码
+#endif
+}
+
 
 

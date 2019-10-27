@@ -16,38 +16,44 @@
 /*
  * MyFIFOCache模型,需要考虑线程并发。该部分仅供参考。
  *
- * peekCache发送第一个，但是不移除。等到发送成功了对方应答了后，再removeCache。
+ * sendFirstInCache发送第一个，但是不移除。等到发送成功了对方应答了后，再removeCache。
  *
  */
 
 
-//加入缓存
-int8 appendIntoCache(MyFIFOCache* cache, uint8* chararray, uint32 length)
+void initMyFIFOCache(MyFIFOCache* cache)
 {
+	memset(cache,0,sizeof(MyFIFOCache));
+}
+
+
+
+
+//加入到缓存最后
+int8 appendIntoCache(MyFIFOCache* cache, uint8* targetMacBytes, uint8* chararray, uint32 length)
+{
+
 	//TODO
 
 	return 0;
 }
 
 //发送第一个，但是不移除。待到收到对方应答再移除(removeCache)
-int8 peekCache(MyFIFOCache* cache )
+int8 sendFirstInCache(MyFIFOCache* cache )
 {
 
 	if( MEDIA_AIR_FROM_WIFI_TO_CLOUD == cache->media)
 	{
-		wifiSend2Cloud( cache->package[0], cache->package_length[0] );
+		wifiSend2Cloud( cache->units[0].package, cache->units[0].package_length );
 	}
 	else if( MEDIA_UART_FROM_WIFI_TO_GWBLE == cache->media)
 	{
-		wifiSend2Uart( cache->package[0], cache->package_length[0] );
+		wifiSend2Uart( cache->units[0].package, cache->units[0].package_length );
 	}
-	else if( MEDIA_BLE_FROM_GWBLE_TO_ETAGBLE == cache->media)
-	{
-		masterSendPackage( cache->package[0], cache->package_length[0], getShortPW(), cache->targetMacBytes);
-	}
-
-	//TODO 将后面的往前移动一个脚标
-
+//	else if( MEDIA_BLE_FROM_GWBLE_TO_ETAGBLE == cache->media)
+//	{
+//		masterSendPackageToSlaveMac(  cache->units[0].package, cache->units[0].package_length, getWifiShortPW(), cache->units[0].targetMacBytes);
+//	}
 
 	return 0;
 }
@@ -57,10 +63,17 @@ int8 removeCache(MyFIFOCache* cache )
 {
 
 
-	//TODO
+	//TODO remove [0], free
 
 
+	//TODO 将后面的往前移动一个脚标
 
 
 	return 0;
+}
+
+//只查看下一个要发的数据
+CacheUnit peekCache(MyFIFOCache* cache)
+{
+	return cache->units[0];
 }

@@ -10,11 +10,10 @@
 #include "gwWifiDriver.h"
 
 
-
 void testGwHb_andParse()
 {
 	uint8* shortPW = "123456";
-	copyCharArrayIntoBuffer(shortPW,SHORTPW_LENGTH,getShortPW());
+	copyCharArrayIntoBuffer(shortPW,SHORTPW_LENGTH,getWifiShortPW());
 	uint8 macBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};
 	copyCharArrayIntoBuffer(macBytes,MAC_BYTE_LENGTH,getWifiMacBytes());
 
@@ -38,8 +37,7 @@ void testGwHb_andParse()
 	copyStringIntoBufferWithLimit(softwareVersion,getGwSoftwareVersion(),SOFTWAREVERSION_LENGTH_MAX+1);
 	copyStringIntoBufferWithLimit(hardwareVersion,getGwHardwareVersion(),HARDWAREVERSION_LENGTH_MAX+1);
 
-	uint16 package_length =0;
-	extern uint8* getGwHbPackage(uint16 *package_length);
+	uint32 package_length =0;
 	uint8* package = getGwHbPackage( &package_length);
 
 	myPrintf("package_length = %d\n", package_length);
@@ -79,6 +77,7 @@ void testGwHbFeedbackNewShortPW_andParse()
 	parseHbFeedback( shortPW,  package,  package_length,  macBytes);
 	myFree(package);
 }
+
 
 
 #if 0

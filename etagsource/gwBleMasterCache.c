@@ -7,41 +7,95 @@
 
 
 #include "gwBleMasterCache.h"
-#include "cacheManager.h"
+
+#include "bleSplittingEncDec.h"
+#include "gwBleScanAndConnect.h"
+#include "gwBleDriver.h"
+
+#if TESTING_SUMMER //testing
+#include "serverParseHb.h"
+#endif
+
+MyMacCache cache2Slave;
+
+void initCache2Slave()
+{
+	memset(&cache2Slave,0,sizeof(MyMacCache));
+	cache2Slave.sendingFoot =-1;
+}
+
+void freeMacCacheUnit(MacCacheUnit* unit)
+{
+	myFree(unit->targetMacBytes);
+	myFree(unit->package);
+}
 
 
-//激活cacheManager.h里的宏REMEMBER_MAC
-MyFIFOCache cache2Slave;
+int16 findEtagMacBytes( uint8* etagMacBytes)
+{
+	//TODO  在cache2Slave中找etagMacBytes所在的脚标
 
+
+
+//	失败返回-1
+	return -1;
+}
+
+//发送指定mac的数据。待到收到对方应答再移除(removeCache2Slave)
+int8 sendCache2Slave( uint8* slaveMacBytes )
+{
+	//TODO  查找etagMacBytes
+
+	int16 foot = findEtagMacBytes( slaveMacBytes);
+	if(foot <0 )
+	{
+		return -1;
+	}
+	cache2Slave.sendingFoot = foot;
+	splitingToSend(slaveMacBytes,  cache2Slave.units[foot].package, cache2Slave.units[foot].package_length);
+	return 0;
+}
+
+int8 removeCache2Slave( )
+{
+	freeMacCacheUnit(&(cache2Slave.units[cache2Slave.sendingFoot]));
+	cache2Slave.sendingFoot = -1;
+	//最后删除该条
+	memset( &(cache2Slave.units[cache2Slave.sendingFoot]), 0, sizeof(MacCacheUnit));
+	return 0;
+}
+
+int16 findZero()
+{
+	//TODO  在cache2Slave中为空的位置， 遍历发现是0的条。返回脚标
+
+
+//	失败返回-1
+	return -1;
+}
 
 
 int8 appendCache2Slave( uint8* etagMacBytes, uint8* chararray, uint32 length)
 {
-	myPrintf("[appendCache2Slave] length=%lld\n", length);
 
-	return appendIntoCache( &cache2Slave,  chararray,  length);
-}
+	int16 foot = findZero();
+	if(foot <-1)
+	{
+		return -1;
+	}
 
-
-
-int8 splitingToSend( uint8* etagMacBytes, uint8* package_ONBLE, uint32 package_length_ONBLE)
-{
-	myPrintf("[splitingToSend] package_length_ONBLE=%lld\n", package_length_ONBLE);
-
-#if defined TESTING_SUMMER
-#include "etagBleParse.h"
-	slaveParseBlePackage( package_ONBLE, package_length_ONBLE);
-#endif
-
-	//TODO 分包协议 并添加到缓存里：要同时记录peripheralMacBytes,然后过滤该mac去连接发送。
-
-
-
-
-//多次发送到cache
-//	return appendIntoCache( &cache2Slave,  chararray,  length);
-
+	//如果上文已经释放，则这里要复制malloc
+	cache2Slave.units[foot].targetMacBytes = etagMacBytes;
+	cache2Slave.units[foot].package = chararray;
+	cache2Slave.units[foot].package_length = length;
 	return 0;
 }
+
+
+
+
+
+
+
 
 

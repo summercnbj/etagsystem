@@ -18,19 +18,22 @@
 #define GW_BLE_QTY 3
 
 
-
+//~~~~~~~~~~~~~~~~内存变量~~~~~~~~~~~~~~~~~~~~~~~
 extern void addFlowNo();
 extern uint16 getFlowNo();
 //判断接受到的receiveFlowNo是否比当前的flowNo小。若小则无效timeout.
 extern itr_bool flowNoValid(uint16 receiveFlowNo);
 extern void setGwBattPercentage(uint8 batt);
 extern uint8 getGwBattPercentage();
-extern uint8* getShortPW();
+extern uint8* getWifiShortPW();
 extern uint8* getWifiMacBytes();
 extern uint8* getRootMacBytes();
 extern uint8* getGwProductModel();
 extern uint8* getGwSoftwareVersion();
 extern uint8* getGwHardwareVersion();
+//~~~~~~~~~~~~~~~~上面是内存变量~~~~~~~~~~~~~~~~~~~~~~~
+
+
 
 extern void wifiResetFactory();
 

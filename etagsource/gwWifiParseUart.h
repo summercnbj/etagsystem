@@ -15,7 +15,7 @@
 #include "nvramApi.h"
 
 
-extern void wifiParseUart(uint8* package, uint16 package_length );
+extern void wifiParseUart(uint8* package, uint32 package_length );
 
 
 #endif /* GWWIFIPARSEUART_H_ */

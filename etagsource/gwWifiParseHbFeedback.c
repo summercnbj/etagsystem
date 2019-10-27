@@ -192,11 +192,9 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 		}
 		else if( SUBCMD_GW_NEW_SHORTPW == subcmd )
 		{
-
 			uint8* newShortPW = (decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH);
 			todoNewShortPW(newShortPW);
 		}
-
 	}
 	else if(CMD_TAG_ETAG_GW_HB_FEEDBACK_STATE == *decode)
 	{

@@ -5,10 +5,17 @@
  *      Author: summer
  */
 
+<<<<<<< HEAD
 #include "gwWifiHb.h"
 
 #include "itrackerBlowFish.h"
 #include "gwWifiCaches.h"
+=======
+#include "include/Cetagsource/gwWifiHb.h"
+
+#include "include/Ctools/itrackerBlowFish.h"
+#include "include/Cetagsource/gwWifiCaches.h"
+>>>>>>> cd3803a... aaaaaa
 
 /** 获得已经加密组装了流水号的GW心跳包，准备发送到云服务器
  * @uuid 长度为UUID_BYTE_LENGTH=42
@@ -114,11 +121,23 @@ uint8* formGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* wifiMacBytes,uint8 
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	uint16 gwHbCoreEncrypt_length =0;
 	uint8* gwHbCoreEncrypt = getHbCoreEncrypt( shortPW,  gwHbCore , gwHbCore_length,&gwHbCoreEncrypt_length);
 	myFree(gwHbCore);
 
 	uint8* package = formHbPackage( shortPW,  flowNo,  wifiMacBytes,  gwHbCoreEncrypt , gwHbCoreEncrypt_length, package_length);
+=======
+<<<<<<< HEAD
+	int gwHbCoreEncrypt_length =0;//blowfish长度表达只有两个字节。所以最长只有16位大小65535.但是可能略超过65535.
+=======
+	uint16_itr gwHbCoreEncrypt_length =0;
+>>>>>>> c1497af... a
+	uint8_itr* gwHbCoreEncrypt = getHbCoreEncrypt( shortPW,  gwHbCore , gwHbCore_length,&gwHbCoreEncrypt_length);
+	myFree(gwHbCore);
+
+	uint8_itr* package = formHbPackage( shortPW,  flowNo,  wifiMacBytes,  gwHbCoreEncrypt , gwHbCoreEncrypt_length, package_length);
+>>>>>>> cd3803a... aaaaaa
 	myFree(gwHbCoreEncrypt);
 
 
@@ -136,7 +155,11 @@ uint8* formGwHbPackage(uint8* shortPW, uint16 flowNo, uint8* wifiMacBytes,uint8 
 	return package;//用完后需要myFree
 }
 
+<<<<<<< HEAD
 uint8* getGwHbPackage(uint16 *package_length)
+=======
+uint8_itr* getGwHbPackage(uint16_itr *package_length)
+>>>>>>> cd3803a... aaaaaa
 {
 	addFlowNo();
 	return formGwHbPackage(getWifiShortPW(), getFlowNo(), getWifiMacBytes(),getGwBattPercentage(),getRootMacBytes(),
@@ -164,7 +187,11 @@ void gwhb()
 
 
 /*~~~~~~~~~~~~~~~~~~~~~~TEST~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+<<<<<<< HEAD
 #include "gwWifiDriver.h"
+=======
+#include "include/Cetagsource/gwWifiDriver.h"
+>>>>>>> cd3803a... aaaaaa
 void testGwHb()
 {
 	uint8 macBytes[UUID_BYTE_LENGTH] = {0xaa,0xbb,0xcc,0x11,0x22,0x33};
@@ -210,14 +237,24 @@ void testGwHb()
 	uint8* shortPW = "123456";
 	uint8* gwHbCore = ret;
 
+<<<<<<< HEAD
 	uint16 encryptedSize =0;
 	uint8* encode = getHbCoreEncrypt( shortPW, gwHbCore, gwHbCore_length, &encryptedSize);
+=======
+	uint16_itr encryptedSize =0;
+	uint8_itr* encode = getHbCoreEncrypt( shortPW, gwHbCore, gwHbCore_length, &encryptedSize);
+>>>>>>> cd3803a... aaaaaa
 	printf("encryptedSize= %d\n", encryptedSize);
 
 	myFree(gwHbCore);
 
+<<<<<<< HEAD
 	uint16 decryptSize =0;
 	uchar* decode = blowfishDec(shortPW, encode, encryptedSize, &decryptSize);
+=======
+	uint16_itr decryptSize =0;
+	uchar_itr* decode = blowfishDec(shortPW, encode, encryptedSize, &decryptSize);
+>>>>>>> cd3803a... aaaaaa
 	printf("decryptSize= %d\n", decryptSize);
 }
 
@@ -227,12 +264,21 @@ void fish()
 	uint8* gwHbStr = "abced";
 	uint16 gwHbStr_length = 5;
 
+<<<<<<< HEAD
 	uint16 encryptedSize =0;
 	uint8* encode = blowfishEnc( shortPW, gwHbStr, gwHbStr_length, &encryptedSize);
 	printf("encryptedSize= %d\n", encryptedSize);
 
 	uint16 decryptSize =0;
 	uchar* decode = blowfishDec(shortPW, encode, encryptedSize, &decryptSize);
+=======
+	uint16_itr encryptedSize =0;
+	uint8_itr* encode = blowfishEnc( shortPW, gwHbStr, gwHbStr_length, &encryptedSize);
+	printf("encryptedSize= %d\n", encryptedSize);
+
+	uint16_itr decryptSize =0;
+	uchar_itr* decode = blowfishDec(shortPW, encode, encryptedSize, &decryptSize);
+>>>>>>> cd3803a... aaaaaa
 	printf("decryptSize= %d\n", decryptSize);
 	printf("decode= %s\n", decode);
 }

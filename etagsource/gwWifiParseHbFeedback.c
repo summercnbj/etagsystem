@@ -4,11 +4,24 @@
  *  Created on: 2019年10月22日
  *      Author: summer
  */
+<<<<<<< HEAD
 #include "gwWifiParseHbFeedback.h"
 #include "unpackPixeldata.h"
 #include "gwWifiCaches.h"
 #include "itrackerBlowFish.h"
 
+=======
+#include "include/Cetagsource/gwWifiParseHbFeedback.h"
+#include "include/Cetagsource/unpackPixeldata.h"
+#include "include/Cetagsource/gwWifiCaches.h"
+<<<<<<< HEAD
+//#include "include/Ctools/itrackerBlowFish.h"
+#include "include/Ctools/itrackerEncryptCs.h"
+=======
+#include "include/Ctools/itrackerBlowFish.h"
+
+>>>>>>> c1497af... a
+>>>>>>> cd3803a... aaaaaa
 
 //~~~~~~~~~~~~~~~~~~~~见十~~~~~~~~~~~~~~~~~~~
 
@@ -139,7 +152,11 @@ void disposeEtagState(uint8* etagMacBytes, uint8 etagState,uint8* decoded_hbfeed
 
 #include "gwWifiDriver.h"
 //API: 被wifi接收函数调用
+<<<<<<< HEAD
 void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedbackPackage_length, uint8* myMacBytes)
+=======
+void parseHbFeedback(uint8_itr* shortPW, uint8_itr* hbFeedbackPackage, uint16_itr hbFeedbackPackage_length, uint8_itr* myMacBytes)
+>>>>>>> cd3803a... aaaaaa
 {
 	if(shortPW == NULL || hbFeedbackPackage ==NULL || myMacBytes == NULL)
 	{
@@ -158,9 +175,21 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 		//该包已过期timeout
 		return;
 	}
+<<<<<<< HEAD
 
 	uint16 decryptSize =0;
 	uchar* decode = blowfishDec(shortPW, hbFeedbackPackage + FLOWNO_BYTE_LENGTH ,
+=======
+<<<<<<< HEAD
+#if defined _itrackerDebug_
+	myPrintf("[parseHbFeedback] get decrypted=%s\n" ,  hbFeedbackPackage +FLOWNO_BYTE_LENGTH  );
+#endif
+=======
+>>>>>>> c1497af... a
+
+	uint16_itr decryptSize =0;
+	uchar_itr* decode = blowfishDec(shortPW, hbFeedbackPackage + FLOWNO_BYTE_LENGTH ,
+>>>>>>> cd3803a... aaaaaa
 			hbFeedbackPackage_length -(FLOWNO_BYTE_LENGTH ) , &decryptSize);
 
 	//ETAG_GW_HB_FEEDBACK_STATE_LENGTH=9 or ETAG_GW_HB_FEEDBACK_STATE_LENGTH(9+N) or GW_NEW_SHOWRTPW_LENGTH=14
@@ -177,7 +206,11 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 	}
 
 
+<<<<<<< HEAD
 	uint8 subcmd = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH );
+=======
+	uint8_itr subcmd = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH );
+>>>>>>> cd3803a... aaaaaa
 
 	myPrintf("parseHbFeedback cmd =0x%x, subcmd= 0x%x\n",*decode,subcmd);
 	if(CMD_ETAG_GW_HB_FEEDBACK_STATE == *decode)
@@ -186,7 +219,11 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 
 		if( SUBCMD_GW_STATE == subcmd )
 		{
+<<<<<<< HEAD
 			uint8 gwState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH);
+=======
+			uint8_itr gwState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH);
+>>>>>>> cd3803a... aaaaaa
 			myPrintf("parseHbFeedback gwState =0x%x\n",gwState);
 			disposeGwState(gwState);
 		}
@@ -200,10 +237,17 @@ void parseHbFeedback(uint8* shortPW, uint8* hbFeedbackPackage, uint16 hbFeedback
 	{
 		if( SUBCMD_TAG_STATE == subcmd )
 		{
+<<<<<<< HEAD
 			uint8 etagState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH + MAC_BYTE_LENGTH);
 			myPrintf("parseHbFeedback etagState =0x%x\n",etagState);
 
 			uint8* etagMacBytes = decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH;
+=======
+			uint8_itr etagState = *(decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH + MAC_BYTE_LENGTH);
+			myPrintf("parseHbFeedback etagState =0x%x\n",etagState);
+
+			uint8_itr* etagMacBytes = decode +CMD_LENGTH + MAC_BYTE_LENGTH + SUBCMD_LENGTH;
+>>>>>>> cd3803a... aaaaaa
 			disposeEtagState(etagMacBytes,etagState, decode,decryptSize );
 		}
 	}

@@ -119,6 +119,10 @@ void masterSendPackageToSlave(uint8* package_ONBLE,uint32 package_length_ONBLE)
 
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> cd3803a... aaaaaa
 
 
 //三，价签心跳包(ETAG_HB)：从价签蓝牙到网关上的蓝牙  2.使用蓝牙广播
@@ -190,7 +194,11 @@ void masterParseBleAdvPackage(uint8* package,uint16 package_length, uint8* short
 		}
 
 		//在最后添加peripheralMacBytes，然后通过uart传输给wificpu
+<<<<<<< HEAD
 		uint8* etagHb2Uart = (uint8*)myMalloc(TAG_HB_ONUART_LENGTH,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+=======
+		uint8_itr* etagHb2Uart = (uint8_itr*)myMalloc(TAG_HB_ONUART_LENGTH,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+>>>>>>> cd3803a... aaaaaa
 		if(etagHb2Uart == NULL)
 		{
 			return;

@@ -378,7 +378,11 @@ void printFFCSdetails(FFCSdetails * details)
 		//解压CSSP到SSP 并打印slicePixeldata
 		SSPbuffer_len = SSP_LENGTH_MAX;
 		memset(SSPbuffer,0,SSPbuffer_len);
+<<<<<<< HEAD
 		int result = uncompress(SSPbuffer, &SSPbuffer_len, (details->fcsspFormaters1)[i]->csspPointer, (details->fcsspFormaters1)[i]->csspLength);
+=======
+		int result = zlibUncompress(SSPbuffer, &SSPbuffer_len, (details->fcsspFormaters1)[i]->csspPointer, (details->fcsspFormaters1)[i]->csspLength);
+>>>>>>> cd3803a... aaaaaa
 		myPrintf("result=%d, SSPbuffer_len=%lld, SSPbuffer=%s\n",result, SSPbuffer_len, SSPbuffer);
 
 		SSPheader* sspHeader = parseSSP( SSPbuffer,  SSPbuffer_len);
@@ -417,7 +421,11 @@ void freeFCSSPformatter(FCSSPformatter* structFormatter)
 void freeFFCSdetails(FFCSdetails* details)
 {
 
+<<<<<<< HEAD
 	uint8* functionname = "freeFFCSdetails";
+=======
+	uint8_itr* functionname = "freeFFCSdetails";
+>>>>>>> cd3803a... aaaaaa
 	myPrintf("[%s]:\n",functionname);
 	if( details == NULL)
 	{
@@ -456,9 +464,16 @@ void freeFFCSdetails(FFCSdetails* details)
  */
 FCSSPformatter* parseFCSSPformatter(uint8* formatter, uint32 formatter_length)
 {
+<<<<<<< HEAD
 
 	if(formatter == NULL || formatter_length < 2 )//"[]"
 	{
+=======
+	myPrintf("[parseFCSSPformatter] %lld length =%s\n", formatter_length, formatter);
+	if(formatter == NULL || formatter_length < 2 )//"[]"
+	{
+		myPrintf("[parseFCSSPformatter] error short formatter_length=%lld\n",formatter_length);
+>>>>>>> cd3803a... aaaaaa
 		return NULL;
 	}
 
@@ -476,6 +491,10 @@ FCSSPformatter* parseFCSSPformatter(uint8* formatter, uint32 formatter_length)
 		structFormatter = (FCSSPformatter*)myMalloc(sizeof(FCSSPformatter),_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
 		if(structFormatter == NULL)
 		{
+<<<<<<< HEAD
+=======
+			myPrintf("[parseFCSSPformatter] malloc fail.\n");
+>>>>>>> cd3803a... aaaaaa
 			return NULL;
 		}
 		counter =0;
@@ -484,6 +503,10 @@ FCSSPformatter* parseFCSSPformatter(uint8* formatter, uint32 formatter_length)
 	}
 	else
 	{
+<<<<<<< HEAD
+=======
+		myPrintf("[parseFCSSPformatter] %lld length with first char is NOT '[' =%s\n", formatter_length, p);
+>>>>>>> cd3803a... aaaaaa
 		return NULL;//first char is NOT '['
 	}
 	p++;
@@ -513,6 +536,10 @@ FCSSPformatter* parseFCSSPformatter(uint8* formatter, uint32 formatter_length)
 			}
 			else if(2 == counter)
 			{//error
+<<<<<<< HEAD
+=======
+				myPrintf("[parseFCSSPformatter] counter=%d >=2\n",counter);
+>>>>>>> cd3803a... aaaaaa
 			}
 
 			//next
@@ -552,10 +579,19 @@ FCSSPformatter* parseFCSSPformatter(uint8* formatter, uint32 formatter_length)
 		else
 		{
 			//缺少结束的 ']'
+<<<<<<< HEAD
+=======
+			myPrintf("[parseFCSSPformatter] ']' NOT found.\n");
+>>>>>>> cd3803a... aaaaaa
 			freeFCSSPformatter(structFormatter);
 			return NULL;
 		}
 	}
+<<<<<<< HEAD
+=======
+
+	myPrintf("[parseFCSSPformatter] error.\n");
+>>>>>>> cd3803a... aaaaaa
 	return NULL;
 }
 
@@ -616,12 +652,20 @@ FFCSdetails* parseFFCS(uint8* ffcs, uint32 ffcs_length)
 {
 	if(ffcs == NULL)
 	{
+<<<<<<< HEAD
+=======
+		myPrintf("[parseFFCS] ffcs is NULL. ffcs_length=%lld\n",ffcs_length);
+>>>>>>> cd3803a... aaaaaa
 		return NULL;
 	}
 	FFCSdetails* details = (FFCSdetails*)myMalloc(sizeof(FFCSdetails),_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
 	if(details == NULL)
 	{
+<<<<<<< HEAD
 		myPrintf("parseFFCS malloc FFCSdetails fail.");
+=======
+		myPrintf("[parseFFCS] malloc FFCSdetails fail.");
+>>>>>>> cd3803a... aaaaaa
 		return NULL;
 	}
 
@@ -660,7 +704,11 @@ FFCSdetails* parseFFCS(uint8* ffcs, uint32 ffcs_length)
 		details->fcsspFormaters0 = (FCSSPformatter**)myMalloc(sizeof(FCSSPformatter*)*details->fcsspFormaters0_qty,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
 		if(abstract  ==NULL)
 		{
+<<<<<<< HEAD
 			myPrintf("parseFFCS No.0 malloc %d pices of FCSSPformatter* fail.", details->fcsspFormaters0_qty);
+=======
+			myPrintf("parseFFCS No.0 malloc %d pieces of FCSSPformatter* fail.", details->fcsspFormaters0_qty);
+>>>>>>> cd3803a... aaaaaa
 			return NULL;
 		}
 
@@ -671,7 +719,11 @@ FFCSdetails* parseFFCS(uint8* ffcs, uint32 ffcs_length)
 			(details->fcsspFormaters0)[i] = parseFCSSPformatter(p,remaining_len);
 			if(safsHeader  ==NULL)
 			{
+<<<<<<< HEAD
 				myPrintf("parseFFCS No.0 parseFCSSPformatter fail.");
+=======
+				myPrintf("parseFFCS No.0 parseFCSSPformatter %lld of %lld fail.",i+1, details->fcsspFormaters0_qty );
+>>>>>>> cd3803a... aaaaaa
 				return NULL;
 			}
 
@@ -704,7 +756,11 @@ FFCSdetails* parseFFCS(uint8* ffcs, uint32 ffcs_length)
 		details->fcsspFormaters1 = (FCSSPformatter**)myMalloc(sizeof(FCSSPformatter*)*details->fcsspFormaters1_qty,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
 		if(abstract  ==NULL)
 		{
+<<<<<<< HEAD
 			myPrintf("parseFFCS No.1 malloc %d pices of FCSSPformatter* fail.", details->fcsspFormaters1_qty);
+=======
+			myPrintf("parseFFCS No.1 malloc %d pieces of FCSSPformatter* fail.", details->fcsspFormaters1_qty);
+>>>>>>> cd3803a... aaaaaa
 			return NULL;
 		}
 
@@ -715,7 +771,11 @@ FFCSdetails* parseFFCS(uint8* ffcs, uint32 ffcs_length)
 			(details->fcsspFormaters1)[i] = parseFCSSPformatter(p,remaining_len);
 			if(safsHeader  ==NULL)
 			{
+<<<<<<< HEAD
 				myPrintf("parseFFCS No.1 parseFCSSPformatter fail.");
+=======
+				myPrintf("parseFFCS No.1 parseFCSSPformatter %lld of %lld fail.",i+1, details->fcsspFormaters1_qty );
+>>>>>>> cd3803a... aaaaaa
 				return NULL;
 			}
 

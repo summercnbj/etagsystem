@@ -14,7 +14,11 @@ uint32 getSizeOfSingleAreaPixeldata(uint32 horizontal, uint32 vertical, uint8 dr
 {
 	if( DRIVER_TYPE_by_VERTICAL == driver_type)
 	{
+<<<<<<< HEAD
 		uint32 ver = get_ceiling_bytes_len( vertical);
+=======
+		uint32_itr ver = get_ceiling_bytes_len( vertical);
+>>>>>>> cd3803a... aaaaaa
 		myPrintf("ver= %d\n",ver);
 		return ver*horizontal;
 	}

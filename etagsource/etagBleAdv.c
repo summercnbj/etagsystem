@@ -17,7 +17,11 @@
 uint8* getOffsetDataCore(uint8* productModel, uint8*softwareVersion,uint8* hardwareVersion,uint8 battPercentage, uint8* md5_16_bytes )
 {
 	myPrintf("getOffsetDataCore productModel= %s\n",productModel);
+<<<<<<< HEAD
 	uint8* dataCore = (uint8*)myMalloc(TAG_HB_LENGTH,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+=======
+	uint8_itr* dataCore = (uint8_itr*)myMalloc(TAG_HB_LENGTH,_FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+>>>>>>> cd3803a... aaaaaa
 	if(dataCore == NULL)
 		return NULL;
 
@@ -30,8 +34,13 @@ uint8* getOffsetDataCore(uint8* productModel, uint8*softwareVersion,uint8* hardw
 	}
 	if(productModel)
 		copyCharArrayIntoBuffer(productModel,len,dataCore + CMD_LENGTH);
+<<<<<<< HEAD
 	uint8 buffer[3];
 	uint8 bufferlen =2;
+=======
+	uint8_itr buffer[3];
+	uint8_itr bufferlen =2;
+>>>>>>> cd3803a... aaaaaa
 	if(softwareVersion)
 	{
 		int8 ver = versionBytes( softwareVersion,  buffer,  bufferlen);

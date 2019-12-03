@@ -30,8 +30,13 @@ void testEtagHbAdv_andParse()
 
 }
 
+<<<<<<< HEAD
 #include "gwWifiParseHbFeedback.h"
 #include "serverPixeldata.h"
+=======
+#include "include/Cetagsource/gwWifiParseHbFeedback.h"
+#include "include/Cetagsource/serverPixeldata.h"
+>>>>>>> cd3803a... aaaaaa
 void testEtagHbFeedbackState_andParse()
 {
 	uint8* shortPW = "123456";

@@ -42,10 +42,17 @@ uint8* getGwWifiEtagHbPackage(uint8* shortPW, uint16 flowNo, uint8* wifiMacBytes
 		uint16 *package_length)
 {
 	addFlowNo();
+<<<<<<< HEAD
 	uint8* uuidBytes = formUuidBytes( wifiMacBytes);
 
 	uint16 gwWifiEtagHbCore_length =0;
 	uint8* gwWifiEtagHbCore = getGwWifiEtagHbCore( uuidBytes, gwBattPercentage, rootMacBytes,etagHbOnUart_body, &gwWifiEtagHbCore_length);
+=======
+	uint8_itr* uuidBytes = formUuidBytes( wifiMacBytes);
+
+	uint16_itr gwWifiEtagHbCore_length =0;
+	uint8_itr* gwWifiEtagHbCore = getGwWifiEtagHbCore( uuidBytes, gwBattPercentage, rootMacBytes,etagHbOnUart_body, &gwWifiEtagHbCore_length);
+>>>>>>> cd3803a... aaaaaa
 	myPrintf("getGwWifiEtagHbPackage gwWifiEtagHbCore_length= %d\n" , gwWifiEtagHbCore_length);
 	myFree(uuidBytes);
 	if( gwWifiEtagHbCore_length < GW_HBCORE_HEADER_LENGTH - BUSY_LENGTH) //without busy
@@ -54,14 +61,23 @@ uint8* getGwWifiEtagHbPackage(uint8* shortPW, uint16 flowNo, uint8* wifiMacBytes
 		return NULL;
 	}
 
+<<<<<<< HEAD
 	uint16 gwWifiEtagHbCoreEncrypt_length =0;
 	uint8* gwWifiEtagHbCoreEncrypt = getHbCoreEncrypt( shortPW,  gwWifiEtagHbCore , gwWifiEtagHbCore_length,&gwWifiEtagHbCoreEncrypt_length);
+=======
+	uint16_itr gwWifiEtagHbCoreEncrypt_length =0;
+	uint8_itr* gwWifiEtagHbCoreEncrypt = getHbCoreEncrypt( shortPW,  gwWifiEtagHbCore , gwWifiEtagHbCore_length,&gwWifiEtagHbCoreEncrypt_length);
+>>>>>>> cd3803a... aaaaaa
 	myPrintf("getGwWifiEtagHbPackage gwWifiEtagHbCoreEncrypt_length= %d\n" , gwWifiEtagHbCoreEncrypt_length);
 	myFree(gwWifiEtagHbCore);
 	if(NULL == gwWifiEtagHbCoreEncrypt)
 		return NULL;
 
+<<<<<<< HEAD
 	uint8* package = formHbPackage( shortPW,  flowNo,  wifiMacBytes,  gwWifiEtagHbCoreEncrypt , gwWifiEtagHbCoreEncrypt_length, package_length);
+=======
+	uint8_itr* package = formHbPackage( shortPW,  flowNo,  wifiMacBytes,  gwWifiEtagHbCoreEncrypt , gwWifiEtagHbCoreEncrypt_length, package_length);
+>>>>>>> cd3803a... aaaaaa
 	myFree(gwWifiEtagHbCoreEncrypt);
 	myPrintf("getGwWifiEtagHbPackage package_length= %d\n" , *package_length);
 

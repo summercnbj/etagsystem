@@ -72,8 +72,13 @@ void test_formSAP()
 	}
 
 
+<<<<<<< HEAD
 	uint32 SAP_length =0;
 	uint8* sap = formSAP(horizontal, vertical, driver_type, pixeldata,  backcolor, forecolor, &SAP_length);
+=======
+	uint32_itr SAP_length =0;
+	uint8_itr* sap = formSAP(horizontal, vertical, driver_type, pixeldata,  backcolor, forecolor, &SAP_length);
+>>>>>>> cd3803a... aaaaaa
 	myPrintf("sap= %s\n",sap);
 	myPrintf("SAP_length= %ld\n",SAP_length);
 	myFree(sap);
@@ -246,7 +251,7 @@ void test_getNumberFCSSP()
 
 
 
-#if 0
+#if 1
 int main()
 {
 //	compresstest();

@@ -33,7 +33,11 @@ uint8* get_ETAG_GW_HB_FEEDBACK_STATE_ONUART(uint8* etagMacBytes, uint8 etagState
 		*package_length += MD5_16_BYTE_LENGTH +FCSSP_length ;
 
 	myPrintf("FCSSP_length=%lld, *package_length=%lld\n",FCSSP_length, *package_length);
+<<<<<<< HEAD
 	uint8* package = (uint8*)myMalloc(*package_length , _FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+=======
+	uint8_itr* package = (uint8_itr*)myMalloc(*package_length , _FILENAME_STRING_, _FUNCTIONNAME_STRING_, _LINE_NUMBER_);
+>>>>>>> cd3803a... aaaaaa
 	if(package ==NULL)
 	{
 		return NULL;

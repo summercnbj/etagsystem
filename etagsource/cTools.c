@@ -70,7 +70,11 @@ void doOffsetByShortPW(uint8* shortPW, uint8* data, uint16 data_length)
 }
 
 //在offset数据的基础上复原原来数据，长度不变。在使用前请复制原来的数据
+<<<<<<< HEAD
 void restoreOffsetByShortPW(uint8* shortPW, uint8* offsetData, uint16 offsetData_length)
+=======
+void restoreOffsetByShortPW(uint8_itr* shortPW, uint8_itr* offsetData, uint16_itr offsetData_length)
+>>>>>>> cd3803a... aaaaaa
 {
 
 	myPrintf("restoreOffsetByShortPW offsetData_length= %d\n",offsetData_length);
